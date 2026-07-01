@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../layouts/MainLayout";
 import "./Usuarios.css";
 
-const API = "http://localhost:3001";
+const API = "/api";
 
 function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);

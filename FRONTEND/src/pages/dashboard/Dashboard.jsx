@@ -16,7 +16,7 @@ import MainLayout from "../../layouts/MainLayout";
 import RevenueChart from "../../components/Charts/RevenueChart";
 import "./Dashboard.css";
 
-const API = "http://localhost:3001";
+const API = "/api";
 
 function Dashboard() {
   const navigate = useNavigate();

@@ -1,7 +1,10 @@
-import logo from "../../../assets/logotrans.png";
+import { useEffect, useState } from "react";
+import logoPadrao from "../../../assets/logotrans.png";
 import "../NovaVenda.css";
 
-function ComprovanteTermico({ venda }) {
+function ComprovanteTermico({ venda, empresa }) {
+ console.log("COMPROVANTE CARREGOU");
+
   function formatarMoeda(valor) {
     return Number(valor || 0).toLocaleString("pt-BR", {
       style: "currency",
@@ -17,12 +20,26 @@ function ComprovanteTermico({ venda }) {
   return (
     <div className="thermal-receipt">
       <div className="receipt-store">
-        <img src={logo} alt="Logo" />
-        <strong>NOME DA LOJA</strong>
-        <span>CNPJ: 00.000.000/0001-00</span>
-        <span>Rua cadastrada, 123</span>
-        <span>Telefone: (17) 99999-9999</span>
-      </div>
+  <img
+    src={empresa?.logo || logoPadrao}
+    alt="Logo"
+  />
+
+  <strong>{empresa?.nome_empresa || empresa?.nomeFantasia || "Gestec360"}</strong>
+
+  <span>CNPJ: {empresa?.cnpj || empresa?.documento || "-"}</span>
+
+  <span>
+    {empresa?.endereco?.rua || empresa?.rua || ""}
+    {empresa?.endereco?.numero || empresa?.numero
+      ? `, ${empresa?.endereco?.numero || empresa?.numero}`
+      : ""}
+  </span>
+
+  <span>
+    {empresa?.telefone || empresa?.whatsapp || "-"}
+  </span>
+</div>
 
       <div className="receipt-separator"></div>
 
@@ -31,25 +48,25 @@ function ComprovanteTermico({ venda }) {
       <div className="receipt-info">
         <div>
           <span>Pedido</span>
-          <strong>#{String(venda.numero).padStart(6, "0")}</strong>
+          <strong>#{String(venda.numero || venda.numero_pedido).padStart(6, "0")}</strong>
         </div>
 
         <div>
           <span>Data</span>
-          <strong>{formatarData(venda.data)}</strong>
+          <strong>{formatarData(venda.data || venda.data_venda)}</strong>
         </div>
 
         <div>
           <span>Tipo</span>
-          <strong>{venda.tipoVenda}</strong>
+          <strong>{venda.tipoVenda || venda.tipo_venda}</strong>
         </div>
 
         <div>
           <span>Pagamento</span>
-          <strong>{venda.formaPagamento}</strong>
+          <strong>{venda.formaPagamento || venda.forma_pagamento}</strong>
         </div>
 
-        {venda.formaPagamento !== "Dinheiro" && venda.tipoVenda !== "Balcão" && (
+        {(venda.formaPagamento || venda.forma_pagamento) !== "Dinheiro" && (venda.tipoVenda || venda.tipo_venda) !== "Balcão" && (
           <div className="receipt-status">
             <span>Status</span>
             <strong
@@ -65,7 +82,7 @@ function ComprovanteTermico({ venda }) {
         )}
       </div>
 
-      {venda.tipoVenda === "Entrega" && (
+      {(venda.tipoVenda || venda.tipo_venda) === "Entrega" && (
         <>
           <div className="receipt-separator"></div>
 
@@ -137,7 +154,7 @@ function ComprovanteTermico({ venda }) {
           <strong>{formatarMoeda(venda.desconto)}</strong>
         </div>
 
-        {venda.tipoVenda === "Entrega" && (
+        {(venda.tipoVenda || venda.tipo_venda) === "Entrega" && (
           <div>
             <span>Entrega</span>
             <strong>{formatarMoeda(venda.taxaEntrega)}</strong>
@@ -150,7 +167,7 @@ function ComprovanteTermico({ venda }) {
         </div>
       </div>
 
-      {venda.formaPagamento === "Dinheiro" && (
+      {(venda.formaPagamento || venda.forma_pagamento) === "Dinheiro" && (
         <>
           <div className="receipt-separator"></div>
 
@@ -169,8 +186,7 @@ function ComprovanteTermico({ venda }) {
       )}
 
       <div className="receipt-footer">
-        <strong>Obrigado pela preferência!</strong>
-        <span>Volte sempre!</span>
+        <strong>{empresa.rodape_comprovante || "Obrigado pela preferência!"}</strong>
       </div>
     </div>
   );

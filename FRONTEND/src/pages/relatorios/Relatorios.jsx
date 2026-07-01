@@ -4,7 +4,7 @@ import "./Relatorios.css";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-const API = "http://localhost:3001";
+const API = "/api";
 
 const empresaId = localStorage.getItem("empresaId");
 

@@ -9,7 +9,7 @@ function Login() {
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
 
-  const API = "http://localhost:3001";
+  const API = "/api";
 
   async function entrar(e) {
     e.preventDefault();

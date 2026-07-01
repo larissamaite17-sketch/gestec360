@@ -3,7 +3,7 @@ import MainLayout from "../../layouts/MainLayout";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import "./GruposComplementos.css";
 
-const API = "http://localhost:3001";
+const API = "/api";
 
 function GruposComplementos() {
   const [grupos, setGrupos] = useState([]);

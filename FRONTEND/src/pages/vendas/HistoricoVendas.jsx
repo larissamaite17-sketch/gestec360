@@ -5,7 +5,7 @@ import { Printer, XCircle } from "lucide-react";
 
 import ComprovanteTermico from "./components/ComprovanteTermico";
 
-const API = "http://localhost:3001";
+const API = "/api";
 const CANCELADAS_STORAGE_KEY = "vendasCanceladas";
 
 function HistoricoVendas() {
@@ -338,8 +338,10 @@ const empresa_id = localStorage.getItem("empresaId");
             <div className="history-modal">
               <h2>Reimprimir comprovante</h2>
 
-              <ComprovanteTermico venda={vendaSelecionada} />
-
+             <ComprovanteTermico
+  venda={vendaSelecionada}
+  empresa={JSON.parse(localStorage.getItem("empresa"))}
+/>
               <div className="history-modal-actions">
                 <button onClick={() => setVendaSelecionada(null)}>Fechar</button>
                 <button onClick={() => window.print()}>Imprimir</button>

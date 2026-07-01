@@ -26,7 +26,7 @@ function ContasPagar() {
   async function carregarDespesas() {
     try {
       const empresaId = localStorage.getItem("empresaId");
-      const resposta = await fetch(`http://localhost:3001/contas-pagar?empresa_id=${empresaId}`);
+      const resposta = await fetch(`/api/contas-pagar?empresa_id=${empresaId}`);
       const dados = await resposta.json();
 
       setDespesas(dados);
@@ -53,7 +53,7 @@ function ContasPagar() {
           .replace(",", ".")
       );
 
-      const resposta = await fetch("http://localhost:3001/contas-pagar", {
+      const resposta = await fetch("/api/contas-pagar", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -93,7 +93,7 @@ function ContasPagar() {
     try {
       const empresaId = localStorage.getItem("empresaId");
       const resposta = await fetch(
-        `http://localhost:3001/contas-pagar/${id}/pagar`,
+        `/api/contas-pagar/${id}/pagar`,
         {
           method: "PUT",
           headers: {

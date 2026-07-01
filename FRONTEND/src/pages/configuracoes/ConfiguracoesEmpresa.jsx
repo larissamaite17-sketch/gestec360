@@ -3,7 +3,7 @@ import MainLayout from "../../layouts/MainLayout";
 import "./ConfiguracoesEmpresa.css";
 import { Upload } from "lucide-react";
 
-const API = "http://localhost:3001";
+const API = "/api";
 
 function ConfiguracoesEmpresa() {
   const [empresa, setEmpresa] = useState({

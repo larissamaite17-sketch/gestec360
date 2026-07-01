@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../layouts/MainLayout";
 import "./ContasReceber.css";
 
-const API = "http://localhost:3001";
+const API = "/api";
 
 function ContasReceber() {
   const [modalAberto, setModalAberto] = useState(false);

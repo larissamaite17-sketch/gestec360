@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import MainLayout from "../../layouts/MainLayout";
 import "./Devolucao.css";
 
-const API = "http://localhost:3001";
+const API = "/api";
 
 const empresa_id = localStorage.getItem("empresaId");
 

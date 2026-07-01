@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./AdminMaster.css";
 
-const API = "http://localhost:3001";
+const API = "/api";
 
 function AdminMaster() {
   const [empresas, setEmpresas] = useState([]);

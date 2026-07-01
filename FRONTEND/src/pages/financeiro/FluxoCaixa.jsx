@@ -13,7 +13,7 @@ function FluxoCaixa() {
     async function carregarFluxoCaixa() {
       try {
         const empresaId = localStorage.getItem("empresaId");
-        const resposta = await fetch(`http://localhost:3001/fluxo-caixa?empresa_id=${empresaId}`);
+        const resposta = await fetch(`/api/fluxo-caixa?empresa_id=${empresaId}`);
         const dados = await resposta.json();
 
         const listaFormatada = dados.map((item) => ({

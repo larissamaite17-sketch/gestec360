@@ -4,7 +4,7 @@ import MainLayout from "../../layouts/MainLayout";
 import { Plus, Save, Package, Weight, Box } from "lucide-react";
 import "./CadastroProduto.css";
 
-const API = "http://localhost:3001";
+const API = "/api";
 
 function CadastroProduto() {
   const [searchParams] = useSearchParams();
@@ -570,6 +570,8 @@ function CadastroProduto() {
                         const isAtivo = itemConfig ? itemConfig.ativo : true;
                        const precoVal =
   itemConfig?.preco ?? comp.preco ?? 0;
+console.log("Complemento:", comp.nome, "Preço:", precoVal);
+  
 
                         return (
                           <div key={idx} className="complement-config-row">

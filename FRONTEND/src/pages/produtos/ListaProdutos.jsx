@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import MainLayout from "../../layouts/MainLayout";
 import "./ListaProdutos.css";
 
-const API = "http://localhost:3001";
+const API = "/api";
 
 function ListaProdutos() {
   const navigate = useNavigate();

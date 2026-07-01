@@ -71,7 +71,7 @@ function NovaVenda() {
   async function carregarProdutos() {
     try {
       const respostaProd = await fetch(
-        `http://localhost:3001/produtos?empresa_id=${empresa_id}`
+        `/api/produtos?empresa_id=${empresa_id}`
       );
       const listaProdutos = await respostaProd.json();
 
@@ -79,8 +79,8 @@ function NovaVenda() {
       let complementosGerais = [];
       try {
         const [resGrupos, resComps] = await Promise.all([
-          fetch(`http://localhost:3001/grupos?empresa_id=${empresa_id}`),
-          fetch(`http://localhost:3001/complementos?empresa_id=${empresa_id}`)
+          fetch(`/api/grupos?empresa_id=${empresa_id}`),
+          fetch(`/api/complementos?empresa_id=${empresa_id}`)
         ]);
         gruposGerais = await resGrupos.json();
         complementosGerais = await resComps.json();
@@ -165,7 +165,7 @@ function NovaVenda() {
   async function carregarClientes() {
     try {
       const resposta = await fetch(
-        `http://localhost:3001/clientes?empresa_id=${empresa_id}`
+        `/api/clientes?empresa_id=${empresa_id}`
       );
       const dados = await resposta.json();
       setClientes(Array.isArray(dados) ? dados : []);
@@ -275,7 +275,7 @@ function NovaVenda() {
     };
 
     try {
-      const resposta = await fetch("http://localhost:3001/vendas", {
+      const resposta = await fetch("/api/vendas", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -793,7 +793,12 @@ function NovaVenda() {
                 Object.entries(produtoSelecionado.configComplementos).map(([grupo, dados]) => (
                   <div key={grupo} className="complement-group-sale">
                     <div className="complement-group-title">
-                      <h3>{grupo}</h3>
+                     <h3 className="grupo-complemento-titulo">
+  {grupo}
+</h3>
+<p className="grupo-complemento-subtitulo">
+  Escolha até {dados.limite} opção{dados.limite > 1 ? "ões" : ""}
+</p>
                       <small>Escolha até {dados.limite || "1"}</small>
                     </div>
 

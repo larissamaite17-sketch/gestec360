@@ -3,7 +3,7 @@ import MainLayout from "../../layouts/MainLayout";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import "./Complementos.css";
 
-const API = "http://localhost:3001";
+const API = "/api";
 
 function Complementos() {
   const [complementos, setComplementos] = useState([]);
