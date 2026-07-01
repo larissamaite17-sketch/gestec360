@@ -13,7 +13,6 @@ import ConfiguracoesEmpresa from "./pages/configuracoes/ConfiguracoesEmpresa";
 import FluxoCaixa from "./pages/financeiro/FluxoCaixa";
 import ContasReceber from "./pages/financeiro/ContasReceber";
 import ContasPagar from "./pages/financeiro/ContasPagar";
-import Clientes from "./pages/Clientes/Clientes";
 import Usuarios from "./pages/configuracoes/Usuarios";
 import Relatorios from "./pages/relatorios/Relatorios";
 import AdminMaster from "./pages/master/AdminMaster";
@@ -26,7 +25,6 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/vendas/nova" element={<NovaVenda />} />
       <Route path="/vendas/historico" element={<HistoricoVendas />} />
-      <Route path="/clientes" element={<Clientes />} />
       <Route path="/vendas/devolucao" element={<Devolucao />} />    
       <Route
   path="/produtos/cadastrar"
