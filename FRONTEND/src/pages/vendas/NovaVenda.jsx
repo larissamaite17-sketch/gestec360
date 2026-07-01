@@ -43,14 +43,25 @@ function NovaVenda() {
   });
 
   const [clientes, setClientes] = useState([]);
+  const [dadosEmpresa, setDadosEmpresa] = useState(null);
   const empresa_id = localStorage.getItem("empresaId");
+
+  async function carregarDadosEmpresa() {
+    try {
+      const resposta = await fetch(`/api/empresas/${empresa_id}`); 
+      const dados = await resposta.json();
+      setDadosEmpresa(dados);
+    } catch (erro) {
+      console.log("Erro ao carregar dados da empresa:", erro);
+    }
+  }
 
   useEffect(() => {
     carregarProdutos();
     carregarClientes();
+    carregarDadosEmpresa();
   }, []);
 
-  // Função para converter strings ou números monetários sem multiplicar centavos
   function converterParaNumero(valor) {
     if (valor === undefined || valor === null || valor === "") return 0;
     if (typeof valor === "number") return valor;
@@ -109,7 +120,6 @@ function NovaVenda() {
                 };
               });
 
-              // CORREÇÃO: Busca o limite cadastrado no grupo do banco (ou assume 1 se não houver)
               const limiteDefinido = grupo.limite ?? grupo.limite_maximo ?? grupo.limitemaximo ?? 1;
 
               config[grupo.nome] = {
@@ -119,7 +129,6 @@ function NovaVenda() {
             }
           });
         } else if (Object.keys(config).length > 0) {
-          // Atualiza os preços e limites de uma config que já veio salva
           Object.keys(config).forEach((grupoNome) => {
             const grupoBanco = gruposGerais.find(g => g.nome === grupoNome);
             if (grupoBanco) {
@@ -203,8 +212,8 @@ function NovaVenda() {
   const taxaEntregaNumero = tipoVenda === "Entrega" ? converterParaNumero(taxaEntrega) : 0;
   
   const total = Number((subtotal - descontoNumero + taxaEntregaNumero).toFixed(2));
-  const valorReceivedNumero = converterParaNumero(valorRecebido);
-  const troco = formaPagamento === "Dinheiro" && valorReceivedNumero > total ? valorReceivedNumero - total : 0;
+  const valorRecebidoNumero = converterParaNumero(valorRecebido);
+  const troco = formaPagamento === "Dinheiro" && valorRecebidoNumero > total ? valorRecebidoNumero - total : 0;
 
   function formatarMoeda(valor) {
     return Number(valor || 0).toLocaleString("pt-BR", {
@@ -249,7 +258,7 @@ function NovaVenda() {
       return;
     }
 
-    if (formaPagamento === "Dinheiro" && valorReceivedNumero < total) {
+    if (formaPagamento === "Dinheiro" && valorRecebidoNumero < total) {
       alert("O valor recebido é menor que o total da venda.");
       return;
     }
@@ -270,7 +279,7 @@ function NovaVenda() {
       total,
       formaPagamento,
       statusPagamento: formaPagamento === "Dinheiro" || tipoVenda === "Balcão" ? "Pago" : statusPagamento,
-      valorRecebido: valorReceivedNumero,
+      valorRecebido: valorRecebidoNumero,
       troco,
     };
 
@@ -463,7 +472,7 @@ function NovaVenda() {
 
     setComplementosSelecionados({
       ...complementosSelecionados,
-      [grupo]: [...atual, { nome, preco: converterParaNumero(preco), group: grupo }],
+      [grupo]: [...atual, { nome, preco: converterParaNumero(preco), group: group }],
     });
   }
 
@@ -553,7 +562,7 @@ function NovaVenda() {
                       <tr key={produto.id}>
                         <td>
                           <div className="qty-control">
-                            <button onClick={() => diminuirQuantidade(produto.id)}>
+                            <button onClick={() =>  diminuirQuantidade(produto.id)}>
                               <Minus size={15} strokeWidth={3} />
                             </button>
                             <span>{produto.quantidade}</span>
@@ -793,39 +802,36 @@ function NovaVenda() {
                 Object.entries(produtoSelecionado.configComplementos).map(([grupo, dados]) => (
                   <div key={grupo} className="complement-group-sale">
                     <div className="complement-group-title">
-                     <h3 className="grupo-complemento-titulo">
-  {grupo}
-</h3>
-<p className="grupo-complemento-subtitulo">
-  Escolha até {dados.limite} opção{dados.limite > 1 ? "ões" : ""}
-</p>
-                      <small>Escolha até {dados.limite || "1"}</small>
+                      <h3 className="grupo-complemento-titulo">{grupo}</h3>
+                      <p className="grupo-complemento-subtitulo">
+                        Escolha até {dados.limite} opção{dados.limite > 1 ? "ões" : ""}
+                      </p>
                     </div>
 
                     <div className="complement-options-sale">
                       {dados.itens && Object.entries(dados.itens).map(([nome, item]) => {
-  const itemObj = typeof item === "object" && item !== null ? item : { ativo: true, preco: Number(item || 0) };
-  const ativo = itemObj.ativo === undefined ? true : itemObj.ativo;
-  const preco = converterParaNumero(itemObj.preco);
-  if (!ativo) return null;
+                        const itemObj = typeof item === "object" && item !== null ? item : { ativo: true, preco: Number(item || 0) };
+                        const ativo = itemObj.ativo === undefined ? true : itemObj.ativo;
+                        const preco = converterParaNumero(itemObj.preco);
+                        if (!ativo) return null;
 
-  const marcado = complementosSelecionados[grupo]?.some((comp) => comp.nome === nome);
+                        const marcado = complementosSelecionados[grupo]?.some((comp) => comp.nome === nome);
 
-  return (
-    <button
-      key={nome}
-      type="button"
-      className={marcado ? "complement-choice active" : "complement-choice"}
-      onClick={() => selecionarComplemento(grupo, nome, preco)}
-      style={marcado ? { backgroundColor: "#2563eb", borderColor: "#2563eb" } : {}}
-    >
-      <span style={marcado ? { color: "#ffffff" } : {}}>{nome}</span>
-      <strong style={marcado ? { color: "#ffffff" } : {}}>
-        {preco > 0 ? `+ ${formatarMoeda(preco)}` : "Grátis"}
-      </strong>
-    </button>
-  );
-})}
+                        return (
+                          <button
+                            key={nome}
+                            type="button"
+                            className={marcado ? "complement-choice active" : "complement-choice"}
+                            onClick={() => selecionarComplemento(grupo, nome, preco)}
+                            style={marcado ? { backgroundColor: "#2563eb", borderColor: "#2563eb" } : {}}
+                          >
+                            <span style={marcado ? { color: "#ffffff" } : {}}>{nome}</span>
+                            <strong style={marcado ? { color: "#ffffff" } : {}}>
+                              {preco > 0 ? `+ ${formatarMoeda(preco)}` : "Grátis"}
+                            </strong>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
@@ -914,6 +920,7 @@ function NovaVenda() {
               <div className="success-icon">✓</div>
               <h2>Venda finalizada!</h2>
               <p>Deseja imprimir o comprovante?</p>
+              
               <ComprovanteTermico
                 venda={{
                   numero: numeroPedido,
@@ -929,10 +936,12 @@ function NovaVenda() {
                   total,
                   formaPagamento,
                   statusPagamento,
-                  valorRecebido: valorReceivedNumero,
+                  valorRecebido: valorRecebidoNumero,
                   troco,
                 }}
+                empresa={dadosEmpresa}
               />
+              
               <div className="modal-actions">
                 <button className="cancel-modal-btn" onClick={novaVenda}>Nova Venda</button>
                 <button className="print-btn" onClick={imprimirComprovante}>Imprimir comprovante</button>

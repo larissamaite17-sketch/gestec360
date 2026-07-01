@@ -186,7 +186,9 @@ function ComprovanteTermico({ venda, empresa }) {
       )}
 
       <div className="receipt-footer">
-        <strong>{empresa.rodape_comprovante || "Obrigado pela preferência!"}</strong>
+        <strong>
+  {empresa?.rodape_comprovante || "Obrigado pela preferência!"}
+</strong>
       </div>
     </div>
   );

@@ -53,6 +53,31 @@ function ConfiguracoesEmpresa() {
         estado: endereco.estado || "",
         mensagem: dados.rodape_comprovante || "Obrigado pela preferência! Volte sempre."
       });
+
+      const empresaLocal = {
+  logo: dados.logo || "",
+  nome_empresa: dados.nome_empresa || "",
+  nomeFantasia: dados.nome_empresa || "",
+  razaoSocial: dados.razao_social || "",
+  cnpj: dados.cnpj || "",
+  documento: dados.cnpj || "",
+  telefone: dados.telefone || "",
+  whatsapp: dados.whatsapp || "",
+  email: dados.email || "",
+  endereco,
+  rua: endereco.rua || "",
+  numero: endereco.numero || "",
+  bairro: endereco.bairro || "",
+  cidade: endereco.cidade || "",
+  estado: endereco.estado || "",
+  rodape_comprovante: dados.rodape_comprovante || "",
+  mensagem: dados.rodape_comprovante || ""
+};
+
+localStorage.setItem(
+  "empresa",
+  JSON.stringify(empresaLocal)
+);
     } catch (erro) {
       console.log("Erro ao carregar configurações:", erro);
     }
@@ -100,6 +125,29 @@ function ConfiguracoesEmpresa() {
         alert("Erro ao salvar configurações.");
         return;
       }
+
+localStorage.setItem(
+  "empresa",
+  JSON.stringify({
+    logo: empresa.logo,
+    nome_empresa: empresa.nomeFantasia,
+    nomeFantasia: empresa.nomeFantasia,
+    razaoSocial: empresa.razaoSocial,
+    cnpj: empresa.documento,
+    documento: empresa.documento,
+    telefone: empresa.telefone,
+    whatsapp: empresa.whatsapp,
+    email: empresa.email,
+    endereco,
+    rua: empresa.rua,
+    numero: empresa.numero,
+    bairro: empresa.bairro,
+    cidade: empresa.cidade,
+    estado: empresa.estado,
+    rodape_comprovante: empresa.mensagem,
+    mensagem: empresa.mensagem
+  })
+);
 
       alert("Configurações salvas.");
     } catch (erro) {
