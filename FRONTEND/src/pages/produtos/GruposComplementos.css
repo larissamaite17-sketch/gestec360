@@ -1,0 +1,107 @@
+.grupo-page{
+
+    width:100%;
+
+}
+
+.grupo-header{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+
+}
+
+.grupo-header h1{
+
+    margin:0;
+    font-size:30px;
+    color:#0f172a;
+
+}
+
+.grupo-header p{
+
+    margin-top:5px;
+    color:#64748b;
+
+}
+
+.novo-grupo-btn{
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border:none;
+    border-radius:14px;
+    cursor:pointer;
+    color:white;
+    font-weight:700;
+    padding:14px 22px;
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+
+}
+
+.grupo-card{
+
+    background:white;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(15,23,42,.06);
+
+}
+
+.grupo-card table{
+
+    width:100%;
+    border-collapse:collapse;
+
+}
+
+.grupo-card th{
+
+    background:#f8fafc;
+    padding:18px;
+    text-align:left;
+
+}
+
+.grupo-card td{
+
+    padding:18px;
+    border-top:1px solid #eef2f7;
+
+}
+
+.action-btn{
+
+    width:38px;
+    height:38px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    margin-right:8px;
+    background:#eff6ff;
+    color:#2563eb;
+
+}
+
+.action-btn.delete{
+
+    background:#fee2e2;
+    color:#dc2626;
+
+}
+
+.simple-modal p{
+
+    margin:20px 0 35px;
+
+    line-height:1.7;
+
+    color:#475569;
+
+    font-size:16px;
+
+}

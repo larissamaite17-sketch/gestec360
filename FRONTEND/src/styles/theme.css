@@ -1,0 +1,54 @@
+/* ===========================
+   GESTEC360 - TEMA GLOBAL
+=========================== */
+
+:root {
+
+  /* Cores principais */
+
+  --primary: #2563EB;
+  --primary-dark: #1D4ED8;
+
+  --secondary: #7C3AED;
+
+  /* Fundo */
+
+  --background: #F8FAFC;
+
+  /* Cards */
+
+  --surface: #FFFFFF;
+
+  /* Textos */
+
+  --text: #0F172A;
+
+  --text-light: #64748B;
+
+  /* Estados */
+
+  --success: #22C55E;
+
+  --danger: #EF4444;
+
+  --warning: #F59E0B;
+
+  /* Bordas */
+
+  --border: #E2E8F0;
+
+  /* Sombras */
+
+  --shadow:
+
+      0 12px 35px rgba(15,23,42,.08);
+
+  /* Bordas */
+
+  --radius-small:12px;
+
+  --radius-medium:18px;
+
+  --radius-large:24px;
+
+}

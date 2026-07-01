@@ -1,0 +1,28 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Ambiente
+.env
+.env.*
+
+# Build
+dist/
+build/
+
+# Logs
+logs/
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# ZIPs
+*.zip
+
+# Arquivos temporários
+*.tmp

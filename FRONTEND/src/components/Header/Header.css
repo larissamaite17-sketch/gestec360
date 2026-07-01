@@ -1,0 +1,110 @@
+.header {
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  font-size: 32px;
+  color: #0f172a;
+}
+
+.header p {
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  width: 340px;
+  height: 56px;
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 18px;
+  padding: 0 18px;
+  gap: 12px;
+}
+
+.search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+}
+
+.search-icon {
+  width: 18px;
+  height: 18px;
+  color: #64748B;
+  cursor: pointer;
+}
+
+.notification {
+  width: 56px;
+  height: 56px;
+  background: #fff;
+  border: 1px solid #e7edf6;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  position: relative;
+  transition: .25s;
+}
+
+.notification span {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+}
+
+.search:focus-within,
+.notification:focus,
+.notification:hover {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, .12);
+}
+
+/* --- ESTILO DO NOVO BOTÃO DE SAIR DIRETO --- */
+.logout-direct-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+  background: #ffffff;
+  border: 1px solid #e7edf6;
+  border-radius: 18px;
+  padding: 0 20px;
+  color: #ef4444; /* Vermelho moderno para o texto e ícone */
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.logout-direct-btn:hover,
+.logout-direct-btn:focus {
+  background: #fee2e2; /* Fundo vermelho bem clarinho ao passar o rato */
+  border-color: #fca5a5;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+}
+
+.logout-direct-btn svg {
+  flex-shrink: 0;
+}
