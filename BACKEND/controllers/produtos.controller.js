@@ -31,6 +31,9 @@ if (!empresa_id) {
 }
 
 export async function cadastrarProduto(req, res) {
+  console.log("BODY:");
+  console.log(JSON.stringify(req.body, null, 2));
+
   try {
    const empresa_id_correto =
   req.headers["x-empresa-id"] ||
@@ -43,40 +46,46 @@ if (!empresa_id_correto) {
   });
 }
     const {
-      identificacao,
-      nome,
-      marca,
-      categoria,
-      codigo_barras,
-      preco_custo,
-      preco_venda,
-      preco_kg,
-      tipo_venda,
-      unidade,
-      estoque,
-      estoque_minimo,
-      imagem
-    } = req.body;
+  identificacao,
+  nome,
+  marca,
+  categoria,
+  codigo_barras,
+  preco_custo,
+  preco_venda,
+  preco_kg,
+  tipo_venda,
+  unidade,
+  estoque,
+  estoque_minimo,
+  imagem,
+  possuiComplementos,
+  configComplementos
+} = req.body;
 
     const resultado = await pool.query(
       `INSERT INTO produtos (
-        empresa_id,
-        identificacao,
-        codigo_barras,
-        nome,
-        marca,
-        categoria,
-        unidade,
-        tipo_venda,
-        preco_custo,
-        preco_venda,
-        preco_kg,
-        estoque,
-        estoque_minimo,
-        imagem
-      ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14
-      ) RETURNING *`,
+    empresa_id,
+    identificacao,
+    codigo_barras,
+    nome,
+    marca,
+    categoria,
+    unidade,
+    tipo_venda,
+    preco_custo,
+    preco_venda,
+    preco_kg,
+    estoque,
+    estoque_minimo,
+    imagem,
+    possui_complementos,
+    config_complementos
+)
+VALUES (
+    $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16
+)
+RETURNING *;`,
       [
         empresa_id_correto,
         identificacao,
@@ -91,7 +100,9 @@ if (!empresa_id_correto) {
         preco_kg,
         estoque,
         estoque_minimo,
-        imagem || null
+        imagem || null,
+possuiComplementos ?? false,
+configComplementos || {}
       ]
     );
 
@@ -114,56 +125,62 @@ if (!empresa_id) {
     erro: "empresa_id não informado."
   });
 }
-  const {
-    identificacao,
-    nome,
-    marca,
-    categoria,
-    codigo_barras,
-    preco_custo,
-    preco_venda,
-    preco_kg,
-    tipo_venda,
-    unidade,
-    estoque,
-    estoque_minimo
-  } = req.body;
+ const {
+  identificacao,
+  nome,
+  marca,
+  categoria,
+  codigo_barras,
+  preco_custo,
+  preco_venda,
+  preco_kg,
+  tipo_venda,
+  unidade,
+  estoque,
+  estoque_minimo,
+  possuiComplementos,
+  configComplementos
+} = req.body;
 
   try {
     const resultado = await pool.query(
       `
       UPDATE produtos
-      SET
-        identificacao = $1,
-        nome = $2,
-        marca = $3,
-        categoria = $4,
-        codigo_barras = $5,
-        preco_custo = $6,
-        preco_venda = $7,
-        preco_kg = $8,
-        tipo_venda = $9,
-        unidade = $10,
-        estoque = $11,
-        estoque_minimo = $12
-      WHERE id = $13 AND empresa_id = $14
-      RETURNING *;
+SET
+  identificacao = $1,
+  nome = $2,
+  marca = $3,
+  categoria = $4,
+  codigo_barras = $5,
+  preco_custo = $6,
+  preco_venda = $7,
+  preco_kg = $8,
+  tipo_venda = $9,
+  unidade = $10,
+  estoque = $11,
+  estoque_minimo = $12,
+  possui_complementos = $13,
+  config_complementos = $14
+WHERE id = $15 AND empresa_id = $16
+RETURNING *;
       `,
       [
-        identificacao,
-        nome,
-        marca,
-        categoria,
-        codigo_barras,
-        preco_custo,
-        preco_venda,
-        preco_kg,
-        tipo_venda,
-        unidade,
-        estoque,
-        estoque_minimo,
-        id,
-        empresa_id
+       identificacao,
+  nome,
+  marca,
+  categoria,
+  codigo_barras,
+  preco_custo,
+  preco_venda,
+  preco_kg,
+  tipo_venda,
+  unidade,
+  estoque,
+  estoque_minimo,
+  possuiComplementos ?? false,
+  configComplementos || {},
+  id,
+  empresa_id
       ]
     );
 

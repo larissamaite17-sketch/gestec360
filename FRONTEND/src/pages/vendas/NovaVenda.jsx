@@ -86,74 +86,46 @@ function NovaVenda() {
       );
       const listaProdutos = await respostaProd.json();
 
-      let gruposGerais = [];
-      let complementosGerais = [];
-      try {
-        const [resGrupos, resComps] = await Promise.all([
-          fetch(`/api/grupos?empresa_id=${empresa_id}`),
-          fetch(`/api/complementos?empresa_id=${empresa_id}`)
-        ]);
-        gruposGerais = await resGrupos.json();
-        complementosGerais = await resComps.json();
-      } catch (err) {
-        console.log("Erro ao carregar listas auxiliares de complementos", err);
-      }
-
       const formatados = listaProdutos.map((produto) => {
-        let config = produto.configcomplementos ?? produto.configComplementos ?? {};
-        if (typeof config === "string") {
-          try { config = JSON.parse(config); } catch (e) { config = {}; }
+        let configCrua = produto.config_complementos ?? produto.configcomplementos ?? produto.configComplementos ?? {};
+        let configFormatada = {};
+
+        if (typeof configCrua === "string" && configCrua.trim() !== "") {
+          try { 
+            configFormatada = JSON.parse(configCrua); 
+          } catch (e) { 
+            console.error("Erro ao converter configComplementos de string para objeto:", e);
+            configFormatada = {}; 
+          }
+        } else if (typeof configCrua === "object" && configCrua !== null) {
+          configFormatada = configCrua;
         }
 
-        if (Object.keys(config).length === 0 && gruposGerais.length > 0) {
-          gruposGerais.forEach((grupo) => {
-            const itensDoGrupo = complementosGerais.filter(
-              (c) => String(c.grupo_id || c.grupoId) === String(grupo.id)
-            );
-            
-            if (itensDoGrupo.length > 0) {
-              const itensFormatados = {};
-              itensDoGrupo.forEach((item) => {
-                itensFormatados[item.nome] = {
-                  ativo: true,
-                  preco: converterParaNumero(item.preco)
-                };
-              });
+        Object.keys(configFormatada).forEach((grupoNome) => {
+          if (!configFormatada[grupoNome]?.itens) return;
 
-              const limiteDefinido = grupo.limite ?? grupo.limite_maximo ?? grupo.limitemaximo ?? 1;
+          Object.keys(configFormatada[grupoNome].itens).forEach((itemNome) => {
+            const item = configFormatada[grupoNome].itens[itemNome];
 
-              config[grupo.nome] = {
-                limite: Number(limiteDefinido),
-                itens: itensFormatados
+            if (typeof item !== "object") {
+              configFormatada[grupoNome].itens[itemNome] = {
+                ativo: true,
+                preco: converterParaNumero(item)
               };
+            } else {
+              item.preco = converterParaNumero(item.preco);
+              if (item.ativo === undefined) item.ativo = true;
             }
           });
-        } else if (Object.keys(config).length > 0) {
-          Object.keys(config).forEach((grupoNome) => {
-            const grupoBanco = gruposGerais.find(g => g.nome === grupoNome);
-            if (grupoBanco) {
-              config[grupoNome].limite = Number(grupoBanco.limite ?? grupoBanco.limite_maximo ?? grupoBanco.limitemaximo ?? config[grupoNome].limite ?? 1);
-            }
-            if (config[grupoNome].itens) {
-              Object.keys(config[grupoNome].itens).forEach((itemNome) => {
-                const itemData = config[grupoNome].itens[itemNome];
-                if (typeof itemData === "object" && itemData !== null) {
-                  itemData.preco = converterParaNumero(itemData.preco);
-                } else {
-                  config[grupoNome].itens[itemNome] = { ativo: true, preco: converterParaNumero(itemData) };
-                }
-              });
-            }
-          });
-        }
+        });
 
         return {
           ...produto,
-          possuiComplementos: produto.possuicomplementos ?? produto.possuiComplementos ?? true,
-          configComplementos: config,
+          possuiComplementos: !!(produto.possui_complementos ?? produto.possuicomplementos ?? produto.possuiComplementos ?? false),
+          configComplementos: configFormatada,
           id: produto.id,
           produtoId: produto.id,
-          codigo: String(produto.identificacao),
+          codigo: String(produto.identificacao || ""),
           codigoBarras: String(produto.codigo_barras || ""),
           nome: produto.nome,
           valor: converterParaNumero(produto.preco_venda || produto.preco),
@@ -328,34 +300,6 @@ function NovaVenda() {
     setTimeout(() => inputProdutoRef.current?.focus(), 100);
   }
 
-  function imprimirComprovante() {
-    window.print();
-  }
-
-  function aumentarQuantidade(id) {
-    setCarrinho(
-      carrinho.map((produto) =>
-        produto.id === id ? { ...produto, quantidade: produto.quantidade + 1 } : produto
-      )
-    );
-  }
-
-  function diminuirQuantidade(id) {
-    setCarrinho(
-      carrinho.map((produto) =>
-        produto.id === id && produto.quantidade > 1
-          ? { ...produto, quantidade: produto.quantidade - 1 }
-          : produto
-      )
-    );
-  }
-
-  function confirmarExcluirProduto() {
-    setCarrinho(carrinho.filter((produto) => produto.id !== produtoExcluir.id));
-    setModalExcluir(false);
-    setProdutoExcluir(null);
-  }
-
   function abrirModalProduto(produto) {
     setProdutoSelecionado({
       ...produto,
@@ -453,6 +397,8 @@ function NovaVenda() {
   }
 
   function selecionarComplemento(grupo, nome, preco) {
+    if (!grupo || group === "undefined") return;
+
     const atual = complementosSelecionados[grupo] || [];
     const existe = atual.some((item) => item.nome === nome);
 
@@ -464,7 +410,9 @@ function NovaVenda() {
       return;
     }
 
-    const limite = Number(produtoSelecionado.configComplementos[grupo]?.limite || 1);
+    const grupoConfig = produtoSelecionado?.configComplementos?.[grupo];
+    const limite = grupoConfig ? Number(grupoConfig.limite || 1) : 1;
+    
     if (limite > 0 && atual.length >= limite) {
       alert(`Você só pode escolher até ${limite} complemento(s) em ${grupo}`);
       return;
@@ -472,7 +420,13 @@ function NovaVenda() {
 
     setComplementosSelecionados({
       ...complementosSelecionados,
-      [grupo]: [...atual, { nome, preco: converterParaNumero(preco), group: group }],
+      [grupo]: [
+        ...atual,
+        {
+          nome,
+          preco: converterParaNumero(preco)
+        }
+      ]
     });
   }
 
@@ -494,6 +448,24 @@ function NovaVenda() {
     setProdutoSelecionado(null);
     setComplementosSelecionados({});
     setPesoProduto("");
+  }
+
+  function aumentarQuantidade(id) {
+    setCarrinho(carrinho.map(p => p.id === id ? { ...p, quantidade: p.quantidade + 1 } : p));
+  }
+
+  function diminuirQuantidade(id) {
+    setCarrinho(carrinho.map(p => p.id === id && p.quantidade > 1 ? { ...p, quantidade: p.quantidade - 1 } : p));
+  }
+
+  function confirmarExcluirProduto() {
+    setCarrinho(carrinho.filter(p => p.id !== produtoExcluir.id));
+    setModalExcluir(false);
+    setProdutoExcluir(null);
+  }
+
+  function imprimirComprovante() {
+    window.print();
   }
 
   return (
@@ -562,7 +534,7 @@ function NovaVenda() {
                       <tr key={produto.id}>
                         <td>
                           <div className="qty-control">
-                            <button onClick={() =>  diminuirQuantidade(produto.id)}>
+                            <button onClick={() => diminuirQuantidade(produto.id)}>
                               <Minus size={15} strokeWidth={3} />
                             </button>
                             <span>{produto.quantidade}</span>
@@ -793,7 +765,7 @@ function NovaVenda() {
                     onChange={(e) => setPesoProduto(e.target.value)}
                   />
                   <span>
-                    Valor calculado: {formatarMoeda(calcularValorPorPeso(produtoSelecionado, pesoProduto))}
+                    Valor calculated: {formatarMoeda(calcularValorPorPeso(produtoSelecionado, pesoProduto))}
                   </span>
                 </div>
               )}
@@ -823,10 +795,9 @@ function NovaVenda() {
                             type="button"
                             className={marcado ? "complement-choice active" : "complement-choice"}
                             onClick={() => selecionarComplemento(grupo, nome, preco)}
-                            style={marcado ? { backgroundColor: "#2563eb", borderColor: "#2563eb" } : {}}
                           >
-                            <span style={marcado ? { color: "#ffffff" } : {}}>{nome}</span>
-                            <strong style={marcado ? { color: "#ffffff" } : {}}>
+                            <span>{nome}</span>
+                            <strong>
                               {preco > 0 ? `+ ${formatarMoeda(preco)}` : "Grátis"}
                             </strong>
                           </button>
@@ -899,18 +870,14 @@ function NovaVenda() {
               <strong className="remove-product-name">{produtoExcluir?.nome}</strong>
 
               <div className="modal-actions">
-                <button className="cancel-modal-btn" onClick={() => setModalExcluir(false)}>
-                  Cancelar
-                </button>
-                <button className="finish-sale-btn" onClick={confirmarExcluirProduto}>
-                  Remover
-                </button>
+                <button className="cancel-modal-btn" onClick={() => setModalExcluir(false)}>Cancelar</button>
+                <button className="finish-sale-btn delete-confirm-btn" onClick={confirmarExcluirProduto}>Remover</button>
               </div>
             </div>
           </div>
         )}
 
-        {/* COMPROVANTE TÉRMICO OVERLAY */}
+        {/* MODAL COMPROVANTE TÉRMICO */}
         {modalComprovante && (
           <div className="receipt-modal-overlay">
             <div className="receipt-modal">
@@ -939,7 +906,7 @@ function NovaVenda() {
                   valorRecebido: valorRecebidoNumero,
                   troco,
                 }}
-                empresa={dadosEmpresa}
+                empresa={JSON.parse(localStorage.getItem("empresa")) || dadosEmpresa}
               />
               
               <div className="modal-actions">

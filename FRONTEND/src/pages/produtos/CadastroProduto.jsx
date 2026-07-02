@@ -53,26 +53,27 @@ function CadastroProduto() {
     const query = `?empresa_id=${empresaId}`;
 
     Promise.all([
-      fetch(`${API}/marcas${query}`, { headers: { "x-empresa-id": empresaId } }).then((r) => r.json()),
-      fetch(`${API}/categorias${query}`, { headers: { "x-empresa-id": empresaId } }).then((r) => r.json()),
-      fetch(`${API}/grupos${query}`, { headers: { "x-empresa-id": empresaId } }).then((r) => r.json()),
-      fetch(`${API}/complementos${query}`, { headers: { "x-empresa-id": empresaId } }).then((r) => r.json()),
+      fetch(`${API}/marcas${query}`, { headers: { "x-empresa-id": empresaId } }).then((r) => r.json()).catch(() => []),
+      fetch(`${API}/categorias${query}`, { headers: { "x-empresa-id": empresaId } }).then((r) => r.json()).catch(() => []),
+      fetch(`${API}/grupos${query}`, { headers: { "x-empresa-id": empresaId } }).then((r) => r.json()).catch(() => []),
+      fetch(`${API}/complementos${query}`, { headers: { "x-empresa-id": empresaId } }).then((r) => r.json()).catch(() => []),
     ])
       .then(([marcas, categorias, grupos, complementos]) => {
-        setMarcas(marcas.map((m) => m.nome));
-        setCategorias(categorias.map((c) => c.nome));
-        setGrupos(grupos);
+        setMarcas(Array.isArray(marcas) ? marcas.map((m) => m.nome) : []);
+        setCategorias(Array.isArray(categorias) ? categorias.map((c) => c.nome) : []);
+        setGrupos(Array.isArray(grupos) ? grupos : []);
         setComplementos(
-  Array.isArray(complementos)
-    ? complementos.filter(c => c.ativo !== false)
-    : []
-);
+          Array.isArray(complementos)
+            ? complementos.filter(c => c.ativo !== false)
+            : []
+        );
       })
       .catch((err) => console.log("Erro ao carregar auxiliares:", err));
 
     fetch(`${API}/produtos${query}`, { headers: { "x-empresa-id": empresaId } })
       .then((r) => r.json())
       .then((produtos) => {
+        if (!Array.isArray(produtos)) return;
         if (idEditar) {
           const produto = produtos.find(
             (item) => String(item.id) === String(idEditar)
@@ -80,29 +81,42 @@ function CadastroProduto() {
           if (produto) {
             setIdentificacao(String(produto.identificacao));
             setNome(produto.nome);
-            setMarca(produto.marca);
-            setCategoria(produto.categoria);
-            setCodigoBarras(produto.codigo_barras);
+            setMarca(produto.marca || "");
+            setCategoria(produto.categoria || "");
+            setCodigoBarras(produto.codigo_barras || "");
             setPrecoCusto(
-              produto.preco_custo.toLocaleString("pt-BR", {
+              produto.preco_custo ? produto.preco_custo.toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
-              })
+              }) : ""
             );
             setPrecoVenda(
-              produto.preco_venda.toLocaleString("pt-BR", {
+              produto.preco_venda ? produto.preco_venda.toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
-              })
+              }) : ""
             );
-            setTipoVenda(produto.tipo_venda);
-            setUnidadeEstoque(produto.unidade);
-            setEstoqueInicial(produto.estoque);
-            setEstoqueMinimo(produto.estoque_minimo);
-            setDescricao(produto.descricao);
-            setPossuiComplementos(produto.possuiComplementos);
-            setGruposSelecionados(produto.gruposComplementos || []);
-            setConfigComplementos(produto.configComplementos || {});
+            setTipoVenda(produto.tipo_venda || "UNIDADE");
+            setUnidadeEstoque(produto.unidade || "UNIDADE");
+            setEstoqueInicial(produto.estoque || "");
+            setEstoqueMinimo(produto.estoque_minimo || "");
+            setDescricao(produto.descricao || "");
+            setPossuiComplementos(
+              produto.possuiComplementos ??
+              produto.possui_complementes ??
+              false
+            );
+
+            setGruposSelecionados(
+              produto.gruposComplementos ??
+              []
+            );
+
+            setConfigComplementos(
+              produto.configComplementos ??
+              produto.config_complementos ??
+              {}
+            );
           }
         } else {
           if (produtos.length > 0) {
@@ -123,7 +137,8 @@ function CadastroProduto() {
   }, [idEditar]);
 
   function formatarMoedaTexto(valor) {
-    const numero = valor.replace(/\D/g, "");
+    if (!valor) return "";
+    const numero = String(valor).replace(/\D/g, "");
     if (!numero) return "";
     return (parseFloat(numero) / 100).toLocaleString("pt-BR", {
       style: "currency",
@@ -132,8 +147,9 @@ function CadastroProduto() {
   }
 
   function moedaParaNumero(valor) {
-    const numero = valor.replace(/\D/g, "");
-    return parseFloat(numero) / 100;
+    if (!valor) return 0;
+    const numero = String(valor).replace(/\D/g, "");
+    return numero ? parseFloat(numero) / 100 : 0;
   }
 
   function formatarMoeda(e, setValor) {
@@ -155,9 +171,9 @@ function CadastroProduto() {
 
     const marcasAtualizadas = await fetch(`${API}/marcas?empresa_id=${empresaId}`, {
       headers: { "x-empresa-id": empresaId }
-    }).then((r) => r.json());
+    }).then((r) => r.json()).catch(() => []);
     
-    setMarcas(marcasAtualizadas.map((m) => m.nome));
+    setMarcas(Array.isArray(marcasAtualizadas) ? marcasAtualizadas.map((m) => m.nome) : []);
     setMarca(novaMarca.trim());
     setNovaMarca("");
     setModalMarca(false);
@@ -178,9 +194,9 @@ function CadastroProduto() {
 
     const categoriasAtualizadas = await fetch(`${API}/categorias?empresa_id=${empresaId}`, {
       headers: { "x-empresa-id": empresaId }
-    }).then((r) => r.json());
+    }).then((r) => r.json()).catch(() => []);
     
-    setCategorias(categoriasAtualizadas.map((c) => c.nome));
+    setCategorias(Array.isArray(categoriasAtualizadas) ? categoriasAtualizadas.map((c) => c.nome) : []);
     setCategoria(novaCategoria.trim());
     setNovaCategoria("");
     setModalCategoria(false);
@@ -223,23 +239,47 @@ function CadastroProduto() {
   function alternarGrupo(grupo) {
     if (gruposSelecionados.includes(grupo)) {
       setGruposSelecionados(
-  gruposSelecionados.filter((item) => item !== grupo)
-);
+        gruposSelecionados.filter((item) => item !== grupo)
+      );
+
+      setConfigComplementos((prev) => {
+        const novo = { ...prev };
+        delete novo[grupo];
+        return novo;
+      });
       return;
     }
+
+    const grupoInfo = grupos.find((g) => g.nome === grupo);
+    const itens = {};
+
+    complementos
+      .filter((c) => Number(c.grupo_id) === Number(grupoInfo?.id))
+      .forEach((c) => {
+        itens[c.nome] = {
+          ativo: true,
+          preco: Number(c.preco || 0)
+        };
+      });
+
     setGruposSelecionados([...gruposSelecionados, grupo]);
+
     setConfigComplementos((prev) => ({
       ...prev,
-      [grupo]: prev[grupo] || { limite: 0, itens: {} },
+      [grupo]: {
+        limite: prev[grupo]?.limite || 1,
+        itens
+      }
     }));
   }
 
   function prepararConfigParaSalvar() {
     const configFinal = {};
     gruposSelecionados.forEach((grupo) => {
-      const grupoInfo = grupos.find((g) => g.nome === grupo);
+      const grupoInfo = grupos.find((g) => String(g.nome) === String(grupo));
+
       const complementosDoGrupo = complementos.filter(
-        (item) => item.grupo_id === grupoInfo?.id
+        (item) => String(item.grupo_id) === String(grupoInfo?.id)
       );
 
       const configGrupoAtual = configComplementos[grupo] || { limite: 0, itens: {} };
@@ -320,9 +360,9 @@ function CadastroProduto() {
 
         const produtosAtualizados = await fetch(`${API}/produtos?empresa_id=${empresaId}`, {
           headers: { "x-empresa-id": empresaId }
-        }).then((r) => r.json());
+        }).then((r) => r.json()).catch(() => []);
         
-        if (produtosAtualizados.length > 0) {
+        if (Array.isArray(produtosAtualizados) && produtosAtualizados.length > 0) {
           const maior = produtosAtualizados.reduce((max, prod) => {
             const num = parseInt(prod.identificacao);
             return num > max ? num : max;
@@ -535,8 +575,8 @@ function CadastroProduto() {
               gruposSelecionados.map((grupoName) => {
                 const grupoInfo = grupos.find((g) => g.nome === grupoName);
                 const list = complementos.filter(
-  item => Number(item.grupo_id) === Number(grupoInfo?.id)
-);
+                  item => Number(item.grupo_id) === Number(grupoInfo?.id)
+                );
 
                 return (
                   <div key={grupoName} className="grupo-config-card">
@@ -568,10 +608,7 @@ function CadastroProduto() {
                       {list.map((comp, idx) => {
                         const itemConfig = configComplementos[grupoName]?.itens?.[comp.nome];
                         const isAtivo = itemConfig ? itemConfig.ativo : true;
-                       const precoVal =
-  itemConfig?.preco ?? comp.preco ?? 0;
-console.log("Complemento:", comp.nome, "Preço:", precoVal);
-  
+                        const precoVal = itemConfig?.preco ?? comp.preco ?? 0;
 
                         return (
                           <div key={idx} className="complement-config-row">
@@ -591,9 +628,9 @@ console.log("Complemento:", comp.nome, "Preço:", precoVal);
                             </label>
                             <input
                               type="text"
-                            value={formatarMoedaTexto(
-  String(Number(precoVal || 0) * 100)
-)}
+                              value={formatarMoedaTexto(
+                                String(Number(precoVal || 0) * 100)
+                              )}
                               onChange={(e) =>
                                 alterarPrecoComplemento(
                                   grupoName,
