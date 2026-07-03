@@ -2,9 +2,13 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import pool from "./db.js";
+
+// CONEXÃO COM BANCO
 pool.connect()
   .then(() => console.log("🔥 Conectado ao banco de dados com sucesso!"))
   .catch((err) => console.error("❌ Erro ao conectar no banco:", err.message));
+
+// ROTAS
 import produtosRoutes from "./routes/produtos.routes.js";
 import marcasRoutes from "./routes/marcas.routes.js";
 import categoriasRoutes from "./routes/categorias.routes.js";
@@ -26,51 +30,42 @@ import empresasRoutes from "./routes/empresas.routes.js";
 dotenv.config();
 
 const app = express();
-app.get("/abc123", (req, res) => {
-  res.send("FUNCIONOU");
-});
 
+// MIDDLEWARES
 app.use(cors());
 app.use(express.json());
 
+// LOG DE REQUISIÇÕES
 app.use((req, res, next) => {
-  console.log(req.method, req.url);
+  console.log(`📌 ${req.method} ${req.url}`);
   next();
 });
 
-app.use("/produtos", produtosRoutes);
-app.use("/marcas", marcasRoutes);
-app.use("/categorias", categoriasRoutes);
-app.use("/grupos", gruposRoutes);
+// ===== ROTAS (SEM DUPLICIDADE) =====
+app.use("/api/produtos", produtosRoutes);
+app.use("/api/marcas", marcasRoutes);
+app.use("/api/categorias", categoriasRoutes);
+app.use("/api/grupos", gruposRoutes);
+app.use("/api/complementos", complementosRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/vendas", vendasRoutes);
+app.use("/api/fluxo-caixa", fluxoCaixaRoutes);
+app.use("/api/contas-pagar", contasPagarRoutes);
+app.use("/api/contas-receber", contasReceberRoutes);
+app.use("/api/clientes", clientesRoutes);
+app.use("/api/devolucoes", devolucoesRoutes);
+app.use("/api/configuracoes", configuracoesRoutes);
+app.use("/api/usuarios", usuariosRoutes);
+app.use("/api/empresas", empresasRoutes);
+app.use("/api/relatorios", relatoriosRoutes);
+app.use("/api/login", loginRoutes);
 
-app.use("/complementos", complementosRoutes);
-
-app.use("/dashboard", dashboardRoutes);
-
-
-app.use("/vendas", vendasRoutes);
-
-app.use("/fluxo-caixa", fluxoCaixaRoutes);
-
-app.use("/contas-pagar", contasPagarRoutes);
-app.use("/contas-receber", contasReceberRoutes);
-app.use("/clientes", clientesRoutes);
-app.use("/devolucoes", devolucoesRoutes);
-app.use("/configuracoes", configuracoesRoutes);
-app.use("/produtos", produtosRoutes);
-app.use("/clientes", clientesRoutes);
-app.use("/usuarios", usuariosRoutes);
-app.use("/empresas", empresasRoutes);
-app.use("/relatorios", relatoriosRoutes);
-
-app.use("/login", loginRoutes);
-
-
-app.get("/", (req, res) => {
-  res.send("API Gestec360 funcionando!");
+// ROTA DE TESTE
+app.get("/api/abc123", (req, res) => {
+  res.json({ mensagem: "FUNCIONOU" });
 });
 
-app.get("/teste-banco", async (req, res) => {
+app.get("/api/teste-banco", async (req, res) => {
   try {
     const resultado = await pool.query("SELECT NOW()");
     res.json(resultado.rows[0]);
@@ -79,8 +74,12 @@ app.get("/teste-banco", async (req, res) => {
   }
 });
 
+app.get("/api", (req, res) => {
+  res.json({ mensagem: "API Gestec360 funcionando!" });
+});
+
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });

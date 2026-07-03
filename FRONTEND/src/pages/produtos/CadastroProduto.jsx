@@ -48,37 +48,58 @@ function CadastroProduto() {
     }
   }, [tipoVenda]);
 
-  useEffect(() => {
+  // ===== FUNÇÃO PARA CARREGAR DADOS AUXILIARES =====
+  async function carregarDadosIniciais() {
     const empresaId = localStorage.getItem("empresaId");
     const query = `?empresa_id=${empresaId}`;
 
-    Promise.all([
-      fetch(`${API}/marcas${query}`, { headers: { "x-empresa-id": empresaId } }).then((r) => r.json()).catch(() => []),
-      fetch(`${API}/categorias${query}`, { headers: { "x-empresa-id": empresaId } }).then((r) => r.json()).catch(() => []),
-      fetch(`${API}/grupos${query}`, { headers: { "x-empresa-id": empresaId } }).then((r) => r.json()).catch(() => []),
-      fetch(`${API}/complementos${query}`, { headers: { "x-empresa-id": empresaId } }).then((r) => r.json()).catch(() => []),
-    ])
-      .then(([marcas, categorias, grupos, complementos]) => {
-        setMarcas(Array.isArray(marcas) ? marcas.map((m) => m.nome) : []);
-        setCategorias(Array.isArray(categorias) ? categorias.map((c) => c.nome) : []);
-        setGrupos(Array.isArray(grupos) ? grupos : []);
-        setComplementos(
-          Array.isArray(complementos)
-            ? complementos.filter(c => c.ativo !== false)
-            : []
-        );
-      })
-      .catch((err) => console.log("Erro ao carregar auxiliares:", err));
+    try {
+      const [marcasRes, categoriasRes, gruposRes, complementosRes] = await Promise.all([
+        fetch(`${API}/marcas${query}`, { headers: { "x-empresa-id": empresaId } }),
+        fetch(`${API}/categorias${query}`, { headers: { "x-empresa-id": empresaId } }),
+        fetch(`${API}/grupos${query}`, { headers: { "x-empresa-id": empresaId } }),
+        fetch(`${API}/complementos${query}`, { headers: { "x-empresa-id": empresaId } }),
+      ]);
 
-    fetch(`${API}/produtos${query}`, { headers: { "x-empresa-id": empresaId } })
-      .then((r) => r.json())
-      .then((produtos) => {
-        if (!Array.isArray(produtos)) return;
-        if (idEditar) {
+      const [marcas, categorias, grupos, complementos] = await Promise.all([
+        marcasRes.json().catch(() => []),
+        categoriasRes.json().catch(() => []),
+        gruposRes.json().catch(() => []),
+        complementosRes.json().catch(() => []),
+      ]);
+
+      console.log("📦 GRUPOS CARREGADOS:", grupos);
+      console.log("📦 COMPLEMENTOS CARREGADOS:", complementos);
+
+      setMarcas(Array.isArray(marcas) ? marcas.map((m) => m.nome) : []);
+      setCategorias(Array.isArray(categorias) ? categorias.map((c) => c.nome) : []);
+      setGrupos(Array.isArray(grupos) ? grupos : []);
+      setComplementos(Array.isArray(complementos) ? complementos.filter(c => c.ativo !== false) : []);
+    } catch (err) {
+      console.log("Erro ao carregar dados:", err);
+    }
+  }
+
+  // ===== USEEFFECT PRINCIPAL =====
+  useEffect(() => {
+    const empresaId = localStorage.getItem("empresaId");
+    
+    // CARREGA DADOS AUXILIARES
+    carregarDadosIniciais();
+
+    // CARREGA PRODUTO PARA EDIÇÃO
+    if (idEditar) {
+      fetch(`${API}/produtos?empresa_id=${empresaId}`, { 
+        headers: { "x-empresa-id": empresaId } 
+      })
+        .then((r) => r.json())
+        .then((produtos) => {
+          if (!Array.isArray(produtos)) return;
           const produto = produtos.find(
             (item) => String(item.id) === String(idEditar)
           );
           if (produto) {
+            // ===== DADOS BÁSICOS =====
             setIdentificacao(String(produto.identificacao));
             setNome(produto.nome);
             setMarca(produto.marca || "");
@@ -101,25 +122,42 @@ function CadastroProduto() {
             setEstoqueInicial(produto.estoque || "");
             setEstoqueMinimo(produto.estoque_minimo || "");
             setDescricao(produto.descricao || "");
-            setPossuiComplementos(
-              produto.possuiComplementos ??
-              produto.possui_complementes ??
-              false
-            );
 
-            setGruposSelecionados(
-              produto.gruposComplementos ??
-              []
-            );
+            // ===== COMPLEMENTOS =====
+            const possuiComp = !!(produto.possui_complementos ?? 
+                                  produto.possuiComplementos ?? 
+                                  false);
+            setPossuiComplementos(possuiComp);
 
-            setConfigComplementos(
-              produto.configComplementos ??
-              produto.config_complementos ??
-              {}
-            );
+    
+
+            // CONFIG COMPLEMENTOS
+            let configComp = produto.config_complementos ?? 
+                             produto.configComplementos ?? 
+                             {};
+
+            // SE FOR STRING, CONVERTE
+            if (typeof configComp === "string" && configComp.trim() !== "") {
+              try {
+                configComp = JSON.parse(configComp);
+              } catch (e) {
+                configComp = {};
+              }
+            }
+
+            console.log("📦 CONFIG CARREGADA:", configComp);
+            setConfigComplementos(configComp);
           }
-        } else {
-          if (produtos.length > 0) {
+        })
+        .catch((err) => console.log("Erro ao buscar produto:", err));
+    } else {
+      // NOVO PRODUTO - BUSCA ÚLTIMO ID
+      fetch(`${API}/produtos?empresa_id=${empresaId}`, { 
+        headers: { "x-empresa-id": empresaId } 
+      })
+        .then((r) => r.json())
+        .then((produtos) => {
+          if (Array.isArray(produtos) && produtos.length > 0) {
             const maior = produtos.reduce((max, produto) => {
               const num = parseInt(produto.identificacao);
               return num > max ? num : max;
@@ -128,12 +166,9 @@ function CadastroProduto() {
           } else {
             setIdentificacao("1");
           }
-        }
-      })
-      .catch((err) => {
-        console.log("Erro ao buscar produtos:", err);
-        if (!idEditar) setIdentificacao("1");
-      });
+        })
+        .catch(() => setIdentificacao("1"));
+    }
   }, [idEditar]);
 
   function formatarMoedaTexto(valor) {
@@ -257,7 +292,7 @@ function CadastroProduto() {
       .filter((c) => Number(c.grupo_id) === Number(grupoInfo?.id))
       .forEach((c) => {
         itens[c.nome] = {
-          ativo: true,
+          ativo: false,
           preco: Number(c.preco || 0)
         };
       });
@@ -302,80 +337,107 @@ function CadastroProduto() {
   }
 
   async function salvarProduto() {
-    if (!nome.trim() || !precoVenda) {
-      alert("Nome e preço de venda são obrigatórios!");
-      return;
-    }
+  if (!nome.trim() || !precoVenda) {
+    alert("Nome e preço de venda são obrigatórios!");
+    return;
+  }
 
-    const precoVendaNumero = moedaParaNumero(precoVenda);
-    const empresaId = localStorage.getItem("empresaId");
+  const precoVendaNumero = moedaParaNumero(precoVenda);
+  const empresaId = localStorage.getItem("empresaId");
+  
+  let identificacaoNumero;
+  if (typeof identificacao === 'string') {
+    identificacaoNumero = parseInt(identificacao.replace(/\D/g, ""), 10);
+  } else {
+    identificacaoNumero = parseInt(identificacao, 10);
+  }
 
-    const produto = {
-      empresa_id: empresaId,
-      identificacao,
-      nome: nome.trim(),
-      marca,
-      categoria,
-      codigo_barras: codigoBarras.trim(),
-      preco_custo: moedaParaNumero(precoCusto),
-      preco_venda: precoVendaNumero,
-      preco_kg: tipoVenda === "PESO" ? precoVendaNumero : null,
-      tipo_venda: tipoVenda,
-      unidade: unidadeEstoque,
-      estoque: parseFloat(estoqueInicial) || 0,
-      estoque_minimo: parseFloat(estoqueMinimo) || 0,
-      descricao,
-      possuiComplementos,
-      gruposComplementos: possuiComplementos ? gruposSelecionados : [],
-      configComplementos: possuiComplementos ? prepararConfigParaSalvar() : {},
-    };
+  if (!identificacaoNumero || isNaN(identificacaoNumero)) {
+    alert("A identificação do produto precisa ser numérica.");
+    return;
+  }
 
-    const url = idEditar ? `${API}/produtos/${idEditar}` : `${API}/produtos`;
-    const method = idEditar ? "PUT" : "POST";
+  // ===== CONSTRÓI A CONFIG DE COMPLEMENTOS =====
+  const configComplementosSalvar = {};
+  
+  if (possuiComplementos) {
+    gruposSelecionados.forEach((grupoNome) => {
+      const grupoInfo = grupos.find((g) => g.nome === grupoNome);
+      
+      if (grupoInfo) {
+        const complementosDoGrupo = complementos.filter(
+          (item) => Number(item.grupo_id) === Number(grupoInfo.id)
+        );
+        
+        const itens = {};
+        complementosDoGrupo.forEach((comp) => {
+          const precoComplemento = Number(comp.preco || 0);
+          
+          itens[comp.nome] = {
+            ativo: true,
+            preco: precoComplemento
+          };
+        });
+        
+        const limite = Number(configComplementos[grupoNome]?.limite) || 1;
+        
+        configComplementosSalvar[grupoNome] = {
+          limite: limite,
+          itens: itens
+        };
+      }
+    });
+  }
 
+ const produto = {
+  empresa_id: Number(empresaId),
+  identificacao: identificacaoNumero,
+  nome: nome.trim(),
+  marca: marca || null,
+  categoria: categoria || null,
+  codigo_barras: codigoBarras.trim() || null,
+  preco_custo: moedaParaNumero(precoCusto),
+  preco_venda: precoVendaNumero,
+  preco_kg: tipoVenda === "PESO" ? precoVendaNumero : null,
+  tipo_venda: tipoVenda,
+  unidade: unidadeEstoque,
+  estoque: parseFloat(estoqueInicial) || 0,
+  estoque_minimo: parseFloat(estoqueMinimo) || 0,
+  possui_complementos: possuiComplementos,
+  config_complementos: possuiComplementos ? configComplementosSalvar : {}
+};
+
+  // ===== AQUI É ONDE COLOCO O CONSOLE.LOG =====
+  console.log("🔍 PRODUTO A SALVAR:", JSON.stringify(produto, null, 2));
+  // ============================================
+
+  const url = idEditar ? `${API}/produtos/${idEditar}` : `${API}/produtos`;
+  const method = idEditar ? "PUT" : "POST";
+
+  try {
     const res = await fetch(url, {
       method,
       headers: { 
         "Content-Type": "application/json",
-        "x-empresa-id": empresaId
+        "x-empresa-id": String(empresaId)
       },
       body: JSON.stringify(produto),
     });
 
+    const responseText = await res.text();
+    console.log("📦 RESPOSTA DO SERVIDOR:", responseText);
+
     if (res.ok) {
       setModalSucesso(true);
-      if (!idEditar) {
-        setNome("");
-        setMarca("");
-        setCategoria("");
-        setCodigoBarras("");
-        setPrecoCusto("");
-        setPrecoVenda("");
-        setEstoqueInicial("");
-        setEstoqueMinimo("");
-        setDescricao("");
-        setPossuiComplementos(false);
-        setGruposSelecionados([]);
-        setConfigComplementos({});
-
-        const produtosAtualizados = await fetch(`${API}/produtos?empresa_id=${empresaId}`, {
-          headers: { "x-empresa-id": empresaId }
-        }).then((r) => r.json()).catch(() => []);
-        
-        if (Array.isArray(produtosAtualizados) && produtosAtualizados.length > 0) {
-          const maior = produtosAtualizados.reduce((max, prod) => {
-            const num = parseInt(prod.identificacao);
-            return num > max ? num : max;
-          }, 0);
-          setIdentificacao(String(maior + 1));
-        } else {
-          setIdentificacao("1");
-        }
-      }
+      alert("✅ Produto salvo com sucesso!");
     } else {
-      alert("Erro ao salvar produto.");
+      alert("❌ Erro: " + responseText);
     }
+  } catch (error) {
+    console.error("❌ Erro:", error);
+    alert("❌ Erro: " + error.message);
   }
+}
 
   return (
     <MainLayout>
@@ -648,16 +710,7 @@ function CadastroProduto() {
               })}
           </div>
 
-          <div className="section-title">Descrição</div>
-
-          <div className="form-group">
-            <textarea
-              rows={5}
-              placeholder="Descrição do produto (Opcional)"
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-            />
-          </div>
+         
 
           <div className="save-product-area">
             <button className="save-product-btn" onClick={salvarProduto}>
@@ -704,7 +757,7 @@ function CadastroProduto() {
         {modalSucesso && (
           <div className="modal-overlay">
             <div className="simple-modal">
-              <h2>{idEditar ? "Produto updated!" : "Produto cadastrado!"}</h2>
+              <h2>{idEditar ? "Produto atualizado!" : "Produto cadastrado!"}</h2>
               <p>O produto foi salvo com sucesso.</p>
               <div className="modal-buttons">
                 <button onClick={() => setModalSucesso(false)}>Fechar</button>

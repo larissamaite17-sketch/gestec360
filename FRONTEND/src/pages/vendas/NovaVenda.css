@@ -33,23 +33,54 @@
   display: grid;
   grid-template-columns: 1fr 370px;
   gap: 24px;
-  align-items: flex-start;
+  align-items: start;
 }
 
-.pdv-card,\r
+.pdv-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.03);
+  min-height: 500px;
+}
+
 .pdv-resume {
   background: #ffffff;
   border-radius: 24px;
   padding: 24px;
   box-shadow: 0 12px 35px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
 }
 
-.section-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-top: 0;
-  margin-bottom: 20px;
+.pdv-resume::-webkit-scrollbar {
+  width: 4px;
+}
+
+.pdv-resume::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.pdv-resume::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.pdv-resume > * {
+  flex-shrink: 0;
+}
+
+.pdv-resume .finish-sale-btn {
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  background: #2563eb;
+  z-index: 10;
 }
 
 .pdv-search-box {
@@ -57,10 +88,16 @@
   margin-bottom: 24px;
 }
 
+.pdv-search-box label {
+  display: block;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
 .pdv-search-box input {
   width: 100%;
   padding: 16px 20px;
-  padding-left: 52px;
   border: 1.5px solid #e2e8f0;
   border-radius: 18px;
   font-size: 16px;
@@ -76,125 +113,115 @@
   outline: none;
 }
 
-.pdv-search-box svg {
+.suggestions-box {
   position: absolute;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
-}
-
-.pdv-products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  max-height: 520px;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  max-height: 300px;
   overflow-y: auto;
-  padding-right: 4px;
+  margin-top: 4px;
 }
 
-.pdv-product-card {
-  border: 1.5px solid #e2e8f0;
-  border-radius: 20px;
-  padding: 18px;
+.suggestions-box button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 14px 18px;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.suggestions-box button:last-child {
+  border-bottom: none;
+}
+
+.suggestions-box button:hover {
+  background: #f8fafc;
+}
+
+.suggestions-box button span {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 120px;
+  gap: 2px;
 }
 
-.pdv-product-card:hover {
-  border-color: #2563eb;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px rgba(37, 99, 235, 0.04);
-}
-
-.pdv-product-info h3 {
-  font-size: 16px;
-  font-weight: 600;
+.suggestions-box button strong {
   color: #0f172a;
-  margin: 0;
-  line-height: 1.4;
+  font-size: 15px;
 }
 
-.pdv-product-info p {
-  font-size: 13px;
-  color: #64748b;
-  margin: 4px 0 0 0;
+.suggestions-box button small {
+  color: #94a3b8;
+  font-size: 12px;
 }
 
-.pdv-product-price-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 12px;
+.suggestions-box button b {
+  color: #2563eb;
+  font-size: 15px;
+  font-weight: 700;
 }
 
-.pdv-product-price {
+.pdv-cart h2 {
   font-size: 18px;
   font-weight: 700;
-  color: #2563eb;
+  color: #0f172a;
+  margin: 0 0 16px 0;
 }
 
-.pdv-product-stock {
-  font-size: 12px;
-  color: #64748b;
-  background: #f1f5f9;
-  padding: 4px 8px;
-  border-radius: 8px;
+.pdv-empty {
+  color: #94a3b8;
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 15px;
 }
 
-.pdv-resume {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 140px);
-  position: sticky;
-  top: 24px;
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.pdv-cart-items {
-  flex: 1;
-  overflow-y: auto;
-  margin-bottom: 20px;
-  padding-right: 4px;
-}
-
-.pdv-cart-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 0;
+.cart-table thead th {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+  padding-bottom: 12px;
   border-bottom: 1px solid #f1f5f9;
 }
 
-.pdv-item-main {
-  flex: 1;
-  padding-right: 12px;
+.cart-table tbody td {
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
 }
 
-.pdv-item-name {
-  font-size: 15px;
-  font-weight: 600;
+.cart-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cart-table tbody td strong {
   color: #0f172a;
-  margin: 0;
+  font-size: 15px;
 }
 
-.pdv-item-price {
-  font-size: 14px;
-  color: #2563eb;
-  font-weight: 600;
-  margin: 4px 0 0 0;
-}
-
-.pdv-item-controls {
+.qty-control {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
-.pdv-qty-btn {
+.qty-control button {
   background: #f1f5f9;
   border: none;
   width: 28px;
@@ -208,12 +235,12 @@
   transition: all 0.15s ease;
 }
 
-.pdv-qty-btn:hover {
+.qty-control button:hover {
   background: #e2e8f0;
   color: #0f172a;
 }
 
-.pdv-item-qty {
+.qty-control span {
   font-size: 15px;
   font-weight: 700;
   color: #0f172a;
@@ -221,7 +248,31 @@
   text-align: center;
 }
 
-.pdv-remove-btn {
+.cart-detail {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.cart-complements {
+  margin-top: 4px;
+}
+
+.cart-complements div {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.cart-complements small {
+  color: #64748b;
+  font-size: 12px;
+  background: #f1f5f9;
+  padding: 2px 10px;
+  border-radius: 12px;
+}
+
+.delete-btn {
   background: none;
   border: none;
   color: #94a3b8;
@@ -233,48 +284,188 @@
   transition: color 0.15s ease;
 }
 
-.pdv-remove-btn:hover {
+.delete-btn:hover {
   color: #ef4444;
 }
 
-.pdv-totals-box {
-  background: #f8fafc;
-  border-radius: 20px;
-  padding: 18px;
-  margin-bottom: 20px;
+.pdv-resume h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 16px 0;
 }
 
-.pdv-total-row {
+/* ===== OPÇÕES ===== */
+.option-group {
+  display: flex !important;
+  gap: 10px !important;
+  margin-bottom: 16px !important;
+  flex-wrap: wrap !important;
+}
+
+.option-group .option {
+  flex: 1 !important;
+  min-width: 80px !important;
+  padding: 10px 16px !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  color: #475569 !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  text-align: center !important;
+}
+
+.option-group .option:hover {
+  border-color: #94a3b8 !important;
+  background: #f8fafc !important;
+}
+
+.option-group .option.active {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
+}
+
+.option-group.payment {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+}
+
+.option-group.payment .option {
+  flex: none !important;
+}
+
+.option-group.status {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+}
+
+.option-group.status .option {
+  flex: none !important;
+}
+
+/* ===== CAMPOS ===== */
+.delivery-box,
+.money-box,
+.observation-box,
+.payment-box,
+.payment-status {
+  margin-bottom: 16px;
+}
+
+.delivery-box label,
+.money-box label,
+.observation-box label,
+.payment-box label,
+.payment-status label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.delivery-box input,
+.money-box input,
+.observation-box textarea,
+.cpf-box input,
+.discount-box input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.delivery-box input:focus,
+.money-box input:focus,
+.observation-box textarea:focus,
+.cpf-box input:focus,
+.discount-box input:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.observation-box textarea {
+  resize: vertical;
+  min-height: 60px;
+  max-height: 120px;
+}
+
+.payment-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.change-box {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.change-box span {
+  color: #475569;
+  font-weight: 600;
   font-size: 14px;
-  color: #64748b;
 }
 
-.pdv-total-row:last-child {
-  margin-bottom: 0;
+.change-box strong {
+  color: #16a34a;
+  font-size: 18px;
 }
 
-.pdv-total-row.grand-total {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1.5px dashed #e2e8f0;
+.resume-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  color: #475569;
+  font-size: 14px;
+}
+
+.resume-row strong {
+  color: #0f172a;
+}
+
+.resume-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-top: 2px solid #e2e8f0;
+  margin-top: 8px;
   font-size: 20px;
   font-weight: 800;
   color: #0f172a;
 }
 
-.pdv-total-row.grand-total span:last-child {
+.resume-total strong {
   color: #2563eb;
 }
 
-.pdv-action-btn {
+.finish-sale-btn {
   width: 100%;
   padding: 16px;
   border: none;
-  border-radius: 18px;
+  border-radius: 14px;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -283,137 +474,50 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-}
-
-.pdv-btn-primary {
   background: #2563eb;
   color: #ffffff;
+  margin-top: 16px;
 }
 
-.pdv-btn-primary:hover {
+.finish-sale-btn:hover {
   background: #1d4ed8;
   box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+  transform: translateY(-2px);
 }
 
-.pdv-btn-primary:disabled {
+.finish-sale-btn:disabled {
   background: #cbd5e1;
   color: #94a3b8;
   cursor: not-allowed;
   box-shadow: none;
+  transform: none;
 }
 
-.cart-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: #94a3b8;
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.cart-empty-state p {
-  margin: 12px 0 0 0;
-  font-size: 15px;
-}
-
-.pdv-form-group {
-  margin-bottom: 16px;
-}
-
-.pdv-form-group label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: #475569;
-  margin-bottom: 6px;
-}
-
-.pdv-form-group input,\r
-.pdv-form-group select {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 14px;
-  background: #ffffff;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-}
-
-.pdv-form-group input:focus,\r
-.pdv-form-group select:focus {
-  border-color: #2563eb;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
-}
-
-.pdv-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.pdv-checkout-layout {
-  display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 24px;
-  align-items: flex-start;
-}
-
-.payment-options-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.payment-option-card {
-  border: 1.5px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.payment-option-card:hover {
-  border-color: #2563eb;
-  background: #f8fafc;
-}
-
-.payment-option-card.active {
-  border-color: #2563eb;
-  background: #eff6ff;
-  color: #2563eb;
-  font-weight: 600;
-}
-
-.payment-option-card svg {
-  color: #64748b;
-}
-
-.payment-option-card.active svg {
-  color: #2563eb;
-}
-
+/* ===== MODAIS ===== */
 .receipt-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(15, 23, 42, 0.6) !important;
+  background-color: rgba(15, 23, 42, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .receipt-modal {
@@ -429,23 +533,26 @@
 
 .close-modal-btn {
   position: absolute;
-  right: 20px;
-  top: 20px;
-  background: #f1f5f9 !important;
+  right: 16px;
+  top: 16px;
+  background: #f1f5f9;
   border: none;
-  color: #64748b !important;
+  color: #64748b;
   cursor: pointer;
-  padding: 6px !important;
-  border-radius: 50% !important;
+  padding: 6px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s !important;
+  transition: all 0.2s;
+  width: 36px;
+  height: 36px;
 }
 
 .close-modal-btn:hover {
-  background: #e2e8f0 !important;
-  color: #0f172a !important;
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: rotate(90deg);
 }
 
 .success-icon {
@@ -461,6 +568,24 @@
   margin: 0 auto 20px auto;
 }
 
+.warning-icon {
+  width: 64px;
+  height: 64px;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin: 0 auto 20px auto;
+}
+
+.delete-icon {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
 .receipt-modal h2 {
   font-size: 24px;
   color: #0f172a;
@@ -469,8 +594,17 @@
 
 .receipt-modal p {
   color: #64748b;
-  margin: 0 0 24px 0;
+  margin: 0 0 8px 0;
   font-size: 15px;
+}
+
+.not-found-code,
+.remove-product-name {
+  display: block;
+  margin-bottom: 16px;
+  color: #2563eb;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .modal-actions {
@@ -480,9 +614,10 @@
   margin-top: 24px;
 }
 
-.cancel-modal-btn,\r
-.print-btn,\r
-.confirm-modal-btn {
+.cancel-modal-btn,
+.print-btn,
+.confirm-modal-btn,
+.delete-confirm-btn {
   padding: 12px;
   border: none;
   border-radius: 12px;
@@ -501,94 +636,166 @@
   background: #e2e8f0;
 }
 
-.print-btn,\r
+.print-btn,
 .confirm-modal-btn {
   background: #2563eb;
   color: white;
 }
 
-.print-btn:hover,\r
+.print-btn:hover,
 .confirm-modal-btn:hover {
   background: #1d4ed8;
 }
 
-.not-found-icon {
-  background: #fee2e2;
-  color: #dc2626;
+.delete-confirm-btn {
+  background: #dc2626;
+  color: white;
 }
 
-.not-found-code,\r
-.remove-product-name {
-  display: block;
-  margin-bottom: 24px;
-  color: #2563eb;
-  font-size: 20px;
+.delete-confirm-btn:hover {
+  background: #b91c1c;
 }
 
-.delete-icon {
-  background: #fee2e2 !important;
-  color: #dc2626 !important;
-}
-
-.payment-status .option-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.payment-status .option {
-  width: 100%;
-  height: 42px;
-}
-
-.payment .option {
-  width: 100%;
-  height: 42px;
-}
-
-.payment {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-/* ==========================================================================
-   MODAL DE COMPLEMENTOS MODERNO (ESTILO DELIVEREY PREMIUM)
-   ========================================================================== */
-
-/* Ajuste específico para a caixa do modal de complementos */
+/* ===== MODAL COMPLEMENTOS ===== */
 .receipt-modal.complement-modal {
-  background: #ffffff !important;
-  border-radius: 20px !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-  padding: 32px !important;
-  max-width: 580px !important;
-  border: none !important;
+  max-width: 680px !important;
+  max-height: 85vh !important;
+  overflow-y: auto !important;
   text-align: left !important;
+  padding: 32px !important;
 }
 
-/* Título Principal do Produto no modal */
 .receipt-modal.complement-modal h2 {
   font-size: 1.5rem !important;
   font-weight: 700 !important;
-  color: #1e293b !important;
-  margin-bottom: 6px !important;
+  color: #0f172a !important;
+  margin: 0 0 8px 0 !important;
+  padding-right: 40px !important;
 }
 
-/* Subtítulo informativo do modal */
 .receipt-modal.complement-modal > p {
   color: #64748b !important;
   font-size: 0.95rem !important;
-  margin-bottom: 24px !important;
+  margin: 0 0 24px 0 !important;
 }
 
-/* Bloco de Peso */
+.receipt-modal.complement-modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.receipt-modal.complement-modal::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.receipt-modal.complement-modal::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.receipt-modal.complement-modal::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.complement-group-sale {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  padding: 20px !important;
+  margin-bottom: 16px !important;
+  transition: all 0.2s ease;
+}
+
+.complement-group-sale:last-child {
+  margin-bottom: 0;
+}
+
+.complement-group-title {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  padding-bottom: 12px !important;
+  margin-bottom: 16px !important;
+}
+
+.grupo-complemento-titulo {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  margin: 0 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.grupo-complemento-subtitulo {
+  font-size: 0.8rem !important;
+  color: #64748b !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  padding: 4px 14px !important;
+  border-radius: 20px !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+}
+
+.complement-options-sale {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+}
+
+.complement-choice {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 14px 18px !important;
+  background: #ffffff !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease-in-out !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  font-family: inherit !important;
+}
+
+.complement-choice:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-1px);
+}
+
+.complement-choice span {
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+}
+
+.complement-choice strong {
+  font-size: 0.85rem !important;
+  color: #16a34a !important;
+  font-weight: 700 !important;
+}
+
+.complement-choice.active {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+  transform: translateY(-1px);
+}
+
+.complement-choice.active span,
+.complement-choice.active strong {
+  color: #ffffff !important;
+}
+
 .weight-box {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .weight-box label {
@@ -596,532 +803,109 @@
   color: #334155;
   display: block;
   margin-bottom: 8px;
+  font-size: 0.9rem;
 }
 
 .weight-box input {
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
   font-size: 1rem;
   outline: none;
   transition: all 0.2s;
+  box-sizing: border-box;
 }
 
 .weight-box input:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
 
 .weight-box span {
   display: block;
-  margin-top: 8px;
+  margin-top: 10px;
   font-weight: 700;
   color: #16a34a;
+  font-size: 1rem;
 }
 
-/* Card agrupador de cada categoria */
-.complement-group-sale {
-  background: #ffffff !important;
-  border: 1px solid #f1f5f9 !important;
-  border-radius: 16px !important;
-  padding: 20px !important;
-  margin-bottom: 20px !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 1200px) {
+  .pdv-content {
+    grid-template-columns: 1fr;
+  }
+
+  .pdv-resume {
+    height: auto;
+    position: static;
+    max-height: none;
+  }
 }
 
-/* Cabeçalho do Grupo */
-.complement-group-title {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  border-bottom: 1px solid #f1f5f9 !important;
-  padding-bottom: 12px !important;
-  margin-bottom: 16px !important;
+@media (max-width: 768px) {
+  .pdv-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .pdv-sale-number {
+    align-self: flex-start;
+  }
+
+  .receipt-modal.complement-modal {
+    max-width: 95% !important;
+    padding: 20px !important;
+    margin: 10px !important;
+  }
+
+  .complement-options-sale {
+    grid-template-columns: 1fr !important;
+  }
+
+  .complement-group-title {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .grupo-complemento-subtitulo {
+    align-self: flex-start !important;
+  }
+
+  .option-group.payment,
+  .option-group.status {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .modal-actions {
+    grid-template-columns: 1fr;
+  }
 }
 
-.grupo-complemento-titulo {
-  font-size: 1.1rem !important;
-  font-weight: 600 !important;
-  color: #0f172a !important;
-  margin: 0 !important;
-}
+@media (max-width: 480px) {
+  .pdv-card,
+  .pdv-resume {
+    padding: 16px;
+  }
 
-/* Tag informativa estilizada */
-.grupo-complemento-subtitulo {
-  font-size: 0.8rem !important;
-  color: #475569 !important;
-  background: #f1f5f9 !important;
-  padding: 4px 10px !important;
-  border-radius: 20px !important;
-  font-weight: 500 !important;
-  margin: 0 !important;
-}
+  .pdv-search-box input {
+    font-size: 14px;
+    padding: 12px 16px;
+  }
 
-/* Organiza em duas colunas */
-.complement-options-sale {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 12px !important;
-}
+  .cart-table tbody td {
+    font-size: 13px;
+    padding: 8px 0;
+  }
 
-/* Botão individual de opção */
-.complement-choice {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 14px 18px !important;
-  background: #f8fafc !important;
-  border: 2px solid #e2e8f0 !important;
-  border-radius: 12px !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease-in-out !important;
-  text-align: left !important;
-}
+  .qty-control button {
+    width: 24px;
+    height: 24px;
+  }
 
-.complement-choice:hover {
-  background: #f1f5f9 !important;
-  border-color: #cbd5e1 !important;
-  transform: translateY(-1px);
-}
-
-.complement-choice span {
-  font-size: 0.95rem !important;
-  font-weight: 500 !important;
-  color: #334155 !important;
-}
-
-.complement-choice strong {
-  font-size: 0.9rem !important;
-  color: #16a34a !important;
-}
-
-/* QUANDO O COMPLEMENTO ESTIVER SELECIONADO (MÁGICA AQUI!) */
-.complement-choice.active {
-  background: #2563eb !important; /* Fundo azul lindo iFood */
-  border-color: #2563eb !important;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
-}
-
-.complement-choice.active span {
-  color: #ffffff !important; /* Letra branca legível */
-  font-weight: 600 !important;
-}
-
-.complement-choice.active strong {
-  color: #ffffff !important; /* Preço branco legível */
-  font-weight: 700 !important;
-}
-
-/* Botão final de adicionar ao carrinho */
-.complement-modal .finish-sale-btn {
-  margin-top: 24px !important;
-  width: 100% !important;
-  padding: 14px !important;
-  font-size: 1.05rem !important;
-  font-weight: 600 !important;
-  border-radius: 12px !important;
-  background: #2563eb !important;
-  color: white !important;
-  border: none !important;
-  cursor: pointer !important;
-  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2) !important;
-  transition: all 0.2s !important;
-}
-
-.complement-modal .finish-sale-btn:hover {
-  background: #1d4ed8 !important;
-  box-shadow: 0 6px 10px -1px rgba(37, 99, 235, 0.3) !important;
-}
-
-/* Correção específica para os botões superiores de Tipo de Venda (Balcão, Retirada, Entrega) */
-.pdv-resume > .option-group {
-  display: grid !important;
-  grid-template-columns: repeat(3, 1fr) !important;
-  gap: 10px !important;
-  margin-bottom: 20px !important;
-}
-
-/* ==========================================================================
-   AJUSTE DE DESIGN DO MODAL PREMIUM (ESTILO IFOOD)
-   ========================================================================== */
-
-/* Centraliza o modal perfeitamente na tela com fundo fosco */
-.receipt-modal-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  background-color: rgba(15, 23, 42, 0.4) !important;
-  backdrop-filter: blur(8px) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  z-index: 1000 !important;
-}
-
-/* Caixa interna do modal de complementos */
-.receipt-modal.complement-modal {
-  background: #ffffff !important;
-  border-radius: 24px !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
-  padding: 32px !important;
-  width: 100% !important;
-  max-width: 650px !important; /* Um pouco mais largo para acomodar bem as duas colunas */
-  max-height: 85vh !important;
-  overflow-y: auto !important; /* Permite scroll se tiver muitos complementos */
-  border: none !important;
-  text-align: left !important;
-}
-
-/* Ajuste dos cards agrupadores de categoria */
-.complement-group-sale {
-  background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 16px !important;
-  padding: 20px !important;
-  margin-bottom: 20px !important;
-}
-
-/* Título de cada grupo (ex: Calda, Frutas) */
-.complement-group-title {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  border-bottom: 1px solid #e2e8f0 !important;
-  padding-bottom: 10px !important;
-  margin-bottom: 16px !important;
-}
-
-.grupo-complemento-titulo {
-  font-size: 1.15rem !important;
-  font-weight: 700 !important;
-  color: #0f172a !important;
-}
-
-.grupo-complemento-subtitulo {
-  font-size: 0.8rem !important;
-  color: #64748b !important;
-  background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  padding: 4px 12px !important;
-  border-radius: 20px !important;
-  font-weight: 600 !important;
-}
-
-/* Grid de opções em 2 colunas perfeitas */
-.complement-options-sale {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 12px !important;
-}
-
-/* Ajuste individual do botão de cada complemento */
-.complement-choice {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 14px 18px !important;
-  background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  border-radius: 12px !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease-in-out !important;
-  width: 100% !important; /* Garante que ocupa a metade da grid certinho */
-  box-sizing: border-box !important;
-}
-
-.complement-choice:hover {
-  background: #f1f5f9 !important;
-  border-color: #94a3b8 !important;
-}
-
-/* Textos dentro do botão de complemento */
-.complement-choice span {
-  font-size: 0.95rem !important;
-  font-weight: 600 !important;
-  color: #334155 !important;
-}
-
-.complement-choice strong {
-  font-size: 0.9rem !important;
-  color: #16a34a !important;
-  font-weight: 700 !important;
-}
-
-/* Quando o complemento estiver ativado */
-.complement-choice.active {
-  background: #2563eb !important;
-  border-color: #2563eb !important;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
-}
-
-.complement-choice.active span,
-.complement-choice.active strong {
-  color: #ffffff !important;
-}
-
-/* Botão de Fechar do Modal (X) */
-.close-modal-btn {
-  position: absolute !important;
-  right: 24px !important;
-  top: 24px !important;
-  background: #f1f5f9 !important;
-  border: none !important;
-  color: #64748b !important;
-  padding: 8px !important;
-  border-radius: 50% !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: all 0.2s !important;
-}
-
-.close-modal-btn:hover {
-  background: #e2e8f0 !important;
-  color: #0f172a !important;
-}
-
-/* ==========================================================================
-   CORREÇÃO DEFINITIVA: BOTÕES SUPERIORES LADO A LADO COM ESPAÇAMENTO
-   ========================================================================== */
-
-/* Alinha os botões Balcão, Retirada e Entrega em 3 colunas perfeitas */
-.pdv-resume > button.option,
-.pdv-resume > .option {
-  display: inline-flex !important;
-  width: calc(33.33% - 8px) !important; /* Divide em 3 partes iguais descontando o espaço */
-  margin-right: 12px !important;       /* Cria o espaçamento entre eles */
-  margin-bottom: 20px !important;
-  justify-content: center !important;
-  align-items: center !important;
-  box-sizing: border-box !important;
-}
-
-/* Remove a margem direita do último botão (Entrega) para não quebrar o alinhamento */
-.pdv-resume > button.option:nth-of-type(3),
-.pdv-resume > .option:nth-of-type(3) {
-  margin-right: 0 !important;
-}
-
-/* Garante que o título ou elementos que vem abaixo deles quebrem a linha corretamente */
-.pdv-resume h3, 
-.pdv-resume .form-group {
-  clear: both !important;
-}
-
-/* ==========================================================================
-   CORREÇÃO PREMIUM DOS BOTÕES DE TIPO DE VENDA (LADO A LADO)
-   ========================================================================== */
-
-/* Seleciona apenas os 3 botões iniciais de tipo de venda dentro do resumo */
-.pdv-resume > button.option:nth-of-type(1),
-.pdv-resume > button.option:nth-of-type(2),
-.pdv-resume > button.option:nth-of-type(3) {
-  display: inline-flex !important;
-  width: calc(33.33% - 8px) !important; /* Divide o espaço perfeitamente em 3 */
-  margin-right: 12px !important;        /* Espaçamento elegante entre eles */
-  margin-bottom: 20px !important;
-  justify-content: center !important;
-  align-items: center !important;
-  box-sizing: border-box !important;
-  float: left !important;               /* Força o alinhamento horizontal */
-}
-
-/* Remove a margem direita do terceiro botão (Entrega) para não estourar o layout */
-.pdv-resume > button.option:nth-of-type(3) {
-  margin-right: 0 !important;
-}
-
-/* Limpa o efeito flutuante (float) para que os elementos de baixo (como Cliente) não subam */
-.pdv-resume > .form-group:first-of-type,
-.pdv-resume > h3 {
-  clear: both !important;
-  padding-top: 10px !important;
-}
-
-
-/* ==========================================================================
-   ESTILIZAÇÃO COMPLETA DO MODAL DE COMPLEMENTOS (PADRÃO IFOOD)
-   ========================================================================== */
-
-/* Fundo escurecido fosco atrás do modal */
-.receipt-modal-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  background-color: rgba(15, 23, 42, 0.5) !important;
-  backdrop-filter: blur(6px) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  z-index: 9999 !important;
-}
-
-/* Caixa principal do modal */
-.receipt-modal.complement-modal {
-  background: #ffffff !important;
-  border-radius: 20px !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-  padding: 24px !important;
-  width: 100% !important;
-  max-width: 580px !important;
-  max-height: 85vh !important;
-  overflow-y: auto !important;
-  position: relative !important;
-}
-
-/* Título principal do modal */
-.receipt-modal.complement-modal h2 {
-  font-size: 1.4rem !important;
-  font-weight: 700 !important;
-  color: #0f172a !important;
-  margin-bottom: 20px !important;
-  padding-right: 30px !important;
-}
-
-/* Card que engloba cada grupo de complemento */
-.complement-group-sale {
-  background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 12px !important;
-  padding: 16px !important;
-  margin-bottom: 16px !important;
-}
-
-/* Título da Categoria (Ex: "calda", "frutas") */
-.complement-group-title {
-  font-size: 1rem !important;
-  font-weight: 700 !important;
-  color: #1e293b !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-  margin-bottom: 12px !important;
-  display: block !important;
-  border-bottom: 1px solid #e2e8f0 !important;
-  padding-bottom: 6px !important;
-}
-
-/* Grid das opções do grupo - Organiza em 2 Colunas Lado a Lado */
-.complement-options-sale {
-  display: grid !important;
-  grid-template-columns: repeat(2, 1fr) !important;
-  gap: 10px !important;
-}
-
-/* Cada botão/card de opção de complemento */
-.complement-choice {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 12px 14px !important;
-  background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  border-radius: 10px !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease-in-out !important;
-}
-
-.complement-choice:hover {
-  background: #f1f5f9 !important;
-  border-color: #94a3b8 !important;
-}
-
-/* Estilo do Nome do complemento */
-.complement-choice span {
-  font-size: 0.9rem !important;
-  font-weight: 600 !important;
-  color: #334155 !important;
-}
-
-/* Estilo do Preço do complemento (+ R$ X,XX) */
-.complement-choice strong {
-  font-size: 0.85rem !important;
-  color: #16a34a !important;
-  font-weight: 700 !important;
-}
-
-/* Estado Ativo / Selecionado */
-.complement-choice.active {
-  background: #2563eb !important;
-  border-color: #2563eb !important;
-}
-
-.complement-choice.active span,
-.complement-choice.active strong {
-  color: #ffffff !important;
-}
-
-/* Botão de fechar (X) no topo direito */
-.close-modal-btn {
-  position: absolute !important;
-  top: 20px !important;
-  right: 20px !important;
-  background: #f1f5f9 !important;
-  border: none !important;
-  border-radius: 50% !important;
-  width: 32px !important;
-  height: 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  color: #64748b !important;
-  cursor: pointer !important;
-  transition: all 0.2s !important;
-}
-
-.close-modal-btn:hover {
-  background: #e2e8f0 !important;
-  color: #0f172a !important;
-}
-
-/* Botão inferior de Salvar/Adicionar ao Carrinho */
-.complement-modal .finish-sale-btn {
-  width: 100% !important;
-  background: #2563eb !important;
-  color: #ffffff !important;
-  padding: 14px !important;
-  border-radius: 12px !important;
-  font-weight: 700 !important;
-  border: none !important;
-  margin-top: 15px !important;
-  cursor: pointer !important;
-  transition: background 0.2s !important;
-}
-
-.complement-modal .finish-sale-btn:hover {
-  background: #1d4ed8 !important;
-}
-
-/* ==========================================================================
-   ANULAÇÃO DO CSS ANTIGO: FORÇAR BOTÕES LADO A LADO COM ESPAÇAMENTO
-   ========================================================================== */
-
-/* Criamos um container imaginário inline para cada botão resetando a estrutura antiga */
-.pdv-resume button.option {
-  display: inline-flex !important;
-  vertical-align: top !important;
-  width: calc(33.33% - 8px) !important; /* Divide em 3 partes perfeitas */
-  margin-right: 12px !important;        /* O espaçamento que você pediu entre eles */
-  margin-bottom: 20px !important;
-  justify-content: center !important;
-  align-items: center !important;
-  box-sizing: border-box !important;
-  float: left !important;               /* Força o alinhamento horizontal perfeito */
-}
-
-/* Remove o espaçamento do último botão (Entrega) para não quebrar a linha */
-.pdv-resume button.option:nth-of-type(3) {
-  margin-right: 0 !important;
-}
-
-/* Evita que os campos de baixo (Nome do Cliente, etc) tentem subir nos botões */
-.pdv-resume .form-group, 
-.pdv-resume h3,
-.pdv-resume div {
-  clear: both !important;
+  .complement-choice {
+    padding: 10px 14px;
+  }
 }

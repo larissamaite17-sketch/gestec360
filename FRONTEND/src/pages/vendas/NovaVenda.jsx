@@ -47,13 +47,11 @@ function NovaVenda() {
   const empresa_id = localStorage.getItem("empresaId");
 
   async function carregarDadosEmpresa() {
-    try {
-      const resposta = await fetch(`/api/empresas/${empresa_id}`); 
-      const dados = await resposta.json();
-      setDadosEmpresa(dados);
-    } catch (erro) {
-      console.log("Erro ao carregar dados da empresa:", erro);
-    }
+    console.log("Desenvolvimento local - ignorando carregamento da empresa");
+    setDadosEmpresa({
+      id: empresa_id,
+      nome: "Gestec360 - Desenvolvimento",
+    });
   }
 
   useEffect(() => {
@@ -81,20 +79,17 @@ function NovaVenda() {
 
   async function carregarProdutos() {
     try {
-      const respostaProd = await fetch(
-        `/api/produtos?empresa_id=${empresa_id}`
-      );
+      const respostaProd = await fetch(`/api/produtos?empresa_id=${empresa_id}`);
       const listaProdutos = await respostaProd.json();
 
       const formatados = listaProdutos.map((produto) => {
-        let configCrua = produto.config_complementos ?? produto.configcomplementos ?? produto.configComplementos ?? {};
+        let configCrua = produto.config_complementos ?? produto.configComplementos ?? {};
         let configFormatada = {};
 
         if (typeof configCrua === "string" && configCrua.trim() !== "") {
           try { 
             configFormatada = JSON.parse(configCrua); 
           } catch (e) { 
-            console.error("Erro ao converter configComplementos de string para objeto:", e);
             configFormatada = {}; 
           }
         } else if (typeof configCrua === "object" && configCrua !== null) {
@@ -119,9 +114,11 @@ function NovaVenda() {
           });
         });
 
+        const possuiComplementos = !!(produto.possui_complementos ?? produto.possuiComplementos ?? false);
+
         return {
           ...produto,
-          possuiComplementos: !!(produto.possui_complementos ?? produto.possuicomplementos ?? produto.possuiComplementos ?? false),
+          possuiComplementos: possuiComplementos,
           configComplementos: configFormatada,
           id: produto.id,
           produtoId: produto.id,
@@ -138,6 +135,7 @@ function NovaVenda() {
       });
 
       setProdutos(formatados);
+      
     } catch (erro) {
       console.log("Erro ao carregar produtos:", erro);
     }
@@ -145,9 +143,7 @@ function NovaVenda() {
 
   async function carregarClientes() {
     try {
-      const resposta = await fetch(
-        `/api/clientes?empresa_id=${empresa_id}`
-      );
+      const resposta = await fetch(`/api/clientes?empresa_id=${empresa_id}`);
       const dados = await resposta.json();
       setClientes(Array.isArray(dados) ? dados : []);
     } catch (erro) {
@@ -301,10 +297,51 @@ function NovaVenda() {
   }
 
   function abrirModalProduto(produto) {
+    const config = produto.configComplementos || {};
+    const temComplementos = Object.keys(config).length > 0;
+    
+    if (!temComplementos) {
+      adicionarDiretoCarrinho(produto, [], converterParaNumero(produto.valor), null);
+      return;
+    }
+    
+    const gruposValidos = {};
+    
+    Object.keys(config).forEach(grupo => {
+      const grupoData = config[grupo];
+      
+      if (grupoData && grupoData.itens && Object.keys(grupoData.itens).length > 0) {
+        gruposValidos[grupo] = {
+          limite: Number(grupoData.limite) || 1,
+          itens: {}
+        };
+        
+        Object.entries(grupoData.itens).forEach(([nome, item]) => {
+          const ativo = item.ativo !== undefined ? item.ativo : true;
+          if (ativo) {
+            gruposValidos[grupo].itens[nome] = {
+              ativo: true,
+              preco: converterParaNumero(item.preco || 0)
+            };
+          }
+        });
+        
+        if (Object.keys(gruposValidos[grupo].itens).length === 0) {
+          delete gruposValidos[grupo];
+        }
+      }
+    });
+
+    if (Object.keys(gruposValidos).length === 0) {
+      adicionarDiretoCarrinho(produto, [], converterParaNumero(produto.valor), null);
+      return;
+    }
+
     setProdutoSelecionado({
       ...produto,
-      configComplementos: produto.configComplementos || {}
+      configComplementos: gruposValidos
     });
+    
     setComplementosSelecionados({});
     setPesoProduto("");
     setModalComplementos(true);
@@ -397,7 +434,7 @@ function NovaVenda() {
   }
 
   function selecionarComplemento(grupo, nome, preco) {
-    if (!grupo || group === "undefined") return;
+    if (!grupo || grupo === "undefined") return;
 
     const atual = complementosSelecionados[grupo] || [];
     const existe = atual.some((item) => item.nome === nome);
@@ -414,7 +451,7 @@ function NovaVenda() {
     const limite = grupoConfig ? Number(grupoConfig.limite || 1) : 1;
     
     if (limite > 0 && atual.length >= limite) {
-      alert(`Você só pode escolher até ${limite} complemento(s) em ${grupo}`);
+      alert(`Você só pode escolher até ${limite} complemento(s) em "${grupo}"`);
       return;
     }
 
@@ -583,6 +620,7 @@ function NovaVenda() {
 
           <aside className="pdv-resume">
             <h2>Resumo do Pedido</h2>
+            
             <div className="option-group">
               {["Balcão", "Retirada", "Entrega"].map((tipo) => (
                 <button
@@ -714,9 +752,10 @@ function NovaVenda() {
 
             {formaPagamento === "Dinheiro" && (
               <div className="money-box">
+                <label>Valor recebido</label>
                 <input
                   type="text"
-                  placeholder="Valor recebido"
+                  placeholder="Digite o valor recebido"
                   value={valorRecebido}
                   onChange={(e) => setValorRecebido(e.target.value)}
                 />
@@ -765,47 +804,56 @@ function NovaVenda() {
                     onChange={(e) => setPesoProduto(e.target.value)}
                   />
                   <span>
-                    Valor calculated: {formatarMoeda(calcularValorPorPeso(produtoSelecionado, pesoProduto))}
+                    Valor calculado: {formatarMoeda(calcularValorPorPeso(produtoSelecionado, pesoProduto))}
                   </span>
                 </div>
               )}
 
-              {produtoTemComplementos(produtoSelecionado) && produtoSelecionado.configComplementos &&
-                Object.entries(produtoSelecionado.configComplementos).map(([grupo, dados]) => (
-                  <div key={grupo} className="complement-group-sale">
-                    <div className="complement-group-title">
-                      <h3 className="grupo-complemento-titulo">{grupo}</h3>
-                      <p className="grupo-complemento-subtitulo">
-                        Escolha até {dados.limite} opção{dados.limite > 1 ? "ões" : ""}
-                      </p>
+              {produtoSelecionado.configComplementos && 
+               Object.keys(produtoSelecionado.configComplementos).length > 0 ? (
+                Object.entries(produtoSelecionado.configComplementos).map(([grupo, dados]) => {
+                  const itensArray = dados.itens ? Object.entries(dados.itens) : [];
+                  if (itensArray.length === 0) return null;
+
+                  return (
+                    <div key={grupo} className="complement-group-sale">
+                      <div className="complement-group-title">
+                        <h3 className="grupo-complemento-titulo">{grupo}</h3>
+                        <span className="grupo-complemento-subtitulo">
+                          Escolha até {dados.limite} opção{dados.limite > 1 ? "ões" : ""}
+                        </span>
+                      </div>
+
+                      <div className="complement-options-sale">
+                        {itensArray.map(([nome, item]) => {
+                          const preco = converterParaNumero(item.preco || 0);
+                          const marcado = complementosSelecionados[grupo]?.some(
+                            (comp) => comp.nome === nome
+                          );
+
+                          return (
+                            <button
+                              key={nome}
+                              type="button"
+                              className={marcado ? "complement-choice active" : "complement-choice"}
+                              onClick={() => selecionarComplemento(grupo, nome, preco)}
+                            >
+                              <span>{nome}</span>
+                              <strong>
+                                {preco > 0 ? `+ ${formatarMoeda(preco)}` : "Grátis"}
+                              </strong>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-
-                    <div className="complement-options-sale">
-                      {dados.itens && Object.entries(dados.itens).map(([nome, item]) => {
-                        const itemObj = typeof item === "object" && item !== null ? item : { ativo: true, preco: Number(item || 0) };
-                        const ativo = itemObj.ativo === undefined ? true : itemObj.ativo;
-                        const preco = converterParaNumero(itemObj.preco);
-                        if (!ativo) return null;
-
-                        const marcado = complementosSelecionados[grupo]?.some((comp) => comp.nome === nome);
-
-                        return (
-                          <button
-                            key={nome}
-                            type="button"
-                            className={marcado ? "complement-choice active" : "complement-choice"}
-                            onClick={() => selecionarComplemento(grupo, nome, preco)}
-                          >
-                            <span>{nome}</span>
-                            <strong>
-                              {preco > 0 ? `+ ${formatarMoeda(preco)}` : "Grátis"}
-                            </strong>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })
+              ) : (
+                <p style={{ color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>
+                  Este produto não possui complementos cadastrados.
+                </p>
+              )}
 
               <button className="finish-sale-btn" onClick={confirmarComplementos}>
                 Adicionar ao carrinho
@@ -906,7 +954,7 @@ function NovaVenda() {
                   valorRecebido: valorRecebidoNumero,
                   troco,
                 }}
-                empresa={JSON.parse(localStorage.getItem("empresa")) || dadosEmpresa}
+                empresa={dadosEmpresa}
               />
               
               <div className="modal-actions">

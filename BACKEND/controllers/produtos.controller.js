@@ -1,225 +1,203 @@
 import pool from "../db.js";
 
-export async function listarProdutos(req, res) {
-
-  console.log("=================================");
-  console.log("QUERY:", req.query);
-  console.log("HEADER:", req.headers["x-empresa-id"]);
-  console.log("EMPRESA:", req.query.empresa_id || req.headers["x-empresa-id"]);
-  console.log("=================================");
-
+// ===== LISTAR PRODUTOS =====
+export const listarProdutos = async (req, res) => {
   try {
-    const empresa_id =
-  req.headers["x-empresa-id"] ||
-  req.query.empresa_id ||
-  req.body?.empresa_id;
-
-if (!empresa_id) {
-  return res.status(400).json({
-    erro: "empresa_id não informado."
-  });
-}
-    const resultado = await pool.query(
-      "SELECT * FROM produtos WHERE empresa_id = $1 ORDER BY id DESC",
-      [empresa_id]
-    );
-
-    res.json(resultado.rows);
-  } catch (erro) {
-    res.status(500).json({ erro: erro.message });
-  }
-}
-
-export async function cadastrarProduto(req, res) {
-  console.log("BODY:");
-  console.log(JSON.stringify(req.body, null, 2));
-
-  try {
-   const empresa_id_correto =
-  req.headers["x-empresa-id"] ||
-  req.body.empresa_id ||
-  req.query.empresa_id;
-
-if (!empresa_id_correto) {
-  return res.status(400).json({
-    erro: "empresa_id não informado."
-  });
-}
-    const {
-  identificacao,
-  nome,
-  marca,
-  categoria,
-  codigo_barras,
-  preco_custo,
-  preco_venda,
-  preco_kg,
-  tipo_venda,
-  unidade,
-  estoque,
-  estoque_minimo,
-  imagem,
-  possuiComplementos,
-  configComplementos
-} = req.body;
-
-    const resultado = await pool.query(
-      `INSERT INTO produtos (
-    empresa_id,
-    identificacao,
-    codigo_barras,
-    nome,
-    marca,
-    categoria,
-    unidade,
-    tipo_venda,
-    preco_custo,
-    preco_venda,
-    preco_kg,
-    estoque,
-    estoque_minimo,
-    imagem,
-    possui_complementos,
-    config_complementos
-)
-VALUES (
-    $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16
-)
-RETURNING *;`,
-      [
-        empresa_id_correto,
-        identificacao,
-        codigo_barras,
-        nome,
-        marca,
-        categoria,
-        unidade,
-        tipo_venda,
-        preco_custo,
-        preco_venda,
-        preco_kg,
-        estoque,
-        estoque_minimo,
-        imagem || null,
-possuiComplementos ?? false,
-configComplementos || {}
-      ]
-    );
-
-    res.status(201).json(resultado.rows[0]);
-  } catch (erro) {
-    console.error("Erro ao cadastrar produto:", erro);
-    res.status(500).json({ erro: erro.message });
-  }
-}
-
-export const atualizarProduto = async (req, res) => {
-  const { id } = req.params;
-  const empresa_id =
-  req.headers["x-empresa-id"] ||
-  req.body.empresa_id ||
-  req.query.empresa_id;
-
-if (!empresa_id) {
-  return res.status(400).json({
-    erro: "empresa_id não informado."
-  });
-}
- const {
-  identificacao,
-  nome,
-  marca,
-  categoria,
-  codigo_barras,
-  preco_custo,
-  preco_venda,
-  preco_kg,
-  tipo_venda,
-  unidade,
-  estoque,
-  estoque_minimo,
-  possuiComplementos,
-  configComplementos
-} = req.body;
-
-  try {
-    const resultado = await pool.query(
-      `
-      UPDATE produtos
-SET
-  identificacao = $1,
-  nome = $2,
-  marca = $3,
-  categoria = $4,
-  codigo_barras = $5,
-  preco_custo = $6,
-  preco_venda = $7,
-  preco_kg = $8,
-  tipo_venda = $9,
-  unidade = $10,
-  estoque = $11,
-  estoque_minimo = $12,
-  possui_complementos = $13,
-  config_complementos = $14
-WHERE id = $15 AND empresa_id = $16
-RETURNING *;
-      `,
-      [
-       identificacao,
-  nome,
-  marca,
-  categoria,
-  codigo_barras,
-  preco_custo,
-  preco_venda,
-  preco_kg,
-  tipo_venda,
-  unidade,
-  estoque,
-  estoque_minimo,
-  possuiComplementos ?? false,
-  configComplementos || {},
-  id,
-  empresa_id
-      ]
-    );
-
-    if (resultado.rows.length === 0) {
-      return res.status(404).json({ erro: "Produto não encontrado." });
+    const { empresa_id } = req.query;
+    
+    if (!empresa_id) {
+      return res.status(400).json({ erro: "empresa_id é obrigatório" });
     }
 
-    res.json(resultado.rows[0]);
-  } catch (erro) {
-    console.error("Erro ao atualizar produto:", erro);
-    res.status(500).json({ erro: erro.message });
+    const query = `
+      SELECT 
+        id, empresa_id, identificacao, nome, marca, categoria, 
+        codigo_barras, preco_custo, preco_venda, preco_kg, 
+        tipo_venda, unidade, estoque, estoque_minimo,
+        possui_complementos, config_complementos,
+        ativo, imagem, criado_em
+      FROM produtos 
+      WHERE empresa_id = $1 
+      ORDER BY id DESC
+    `;
+
+    const result = await pool.query(query, [empresa_id]);
+    
+    console.log("📦 PRODUTOS LISTADOS:", result.rows.length);
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error("❌ Erro ao listar produtos:", error);
+    res.status(500).json({ erro: error.message });
   }
 };
 
-export const excluirProduto = async (req, res) => {
-  const { id } = req.params;
-  const empresa_id =
-  req.headers["x-empresa-id"] ||
-  req.query.empresa_id ||
-  req.body?.empresa_id;
-
-if (!empresa_id) {
-  return res.status(400).json({
-    erro: "empresa_id não informado."
-  });
-}
+// ===== CADASTRAR PRODUTO =====
+export const cadastrarProduto = async (req, res) => {
   try {
-    const resultado = await pool.query(
-      "DELETE FROM produtos WHERE id = $1 AND empresa_id = $2 RETURNING *;", 
-      [id, empresa_id]
-    );
+    const {
+      empresa_id,
+      identificacao,
+      nome,
+      marca,
+      categoria,
+      codigo_barras,
+      preco_custo,
+      preco_venda,
+      preco_kg,
+      tipo_venda,
+      unidade,
+      estoque,
+      estoque_minimo,
+      possui_complementos,
+      config_complementos
+    } = req.body;
 
-    if (resultado.rows.length === 0) {
-      return res.status(404).json({ erro: "Produto não encontrado para exclusão." });
+    console.log("📦 CADASTRANDO PRODUTO:", req.body);
+    console.log("📦 possui_complementos:", possui_complementos);
+    console.log("📦 config_complementos:", config_complementos);
+
+    const query = `
+      INSERT INTO produtos (
+        empresa_id, identificacao, nome, marca, categoria, codigo_barras,
+        preco_custo, preco_venda, preco_kg, tipo_venda, unidade,
+        estoque, estoque_minimo,
+        possui_complementos, config_complementos
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      RETURNING *;
+    `;
+
+    const values = [
+      empresa_id,
+      identificacao,
+      nome,
+      marca,
+      categoria,
+      codigo_barras,
+      preco_custo,
+      preco_venda,
+      preco_kg,
+      tipo_venda,
+      unidade,
+      estoque || 0,
+      estoque_minimo || 0,
+      possui_complementos || false,
+      config_complementos || {}
+    ];
+
+    const result = await pool.query(query, values);
+    
+    console.log("✅ PRODUTO CRIADO:", result.rows[0]);
+    
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("❌ Erro ao cadastrar produto:", error);
+    res.status(500).json({ erro: error.message });
+  }
+};
+
+// ===== ATUALIZAR PRODUTO =====
+export const atualizarProduto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      empresa_id,
+      identificacao,
+      nome,
+      marca,
+      categoria,
+      codigo_barras,
+      preco_custo,
+      preco_venda,
+      preco_kg,
+      tipo_venda,
+      unidade,
+      estoque,
+      estoque_minimo,
+      possui_complementos,
+      config_complementos
+    } = req.body;
+
+    console.log("📦 ATUALIZANDO PRODUTO:", req.body);
+    console.log("📦 possui_complementos:", possui_complementos);
+    console.log("📦 config_complementos:", config_complementos);
+
+    const query = `
+      UPDATE produtos SET
+        empresa_id = $1,
+        identificacao = $2,
+        nome = $3,
+        marca = $4,
+        categoria = $5,
+        codigo_barras = $6,
+        preco_custo = $7,
+        preco_venda = $8,
+        preco_kg = $9,
+        tipo_venda = $10,
+        unidade = $11,
+        estoque = $12,
+        estoque_minimo = $13,
+        possui_complementos = $14,
+        config_complementos = $15
+      WHERE id = $16 AND empresa_id = $17
+      RETURNING *;
+    `;
+
+    const values = [
+      empresa_id,
+      identificacao,
+      nome,
+      marca,
+      categoria,
+      codigo_barras,
+      preco_custo,
+      preco_venda,
+      preco_kg,
+      tipo_venda,
+      unidade,
+      estoque || 0,
+      estoque_minimo || 0,
+      possui_complementos || false,
+      config_complementos || {},
+      id,
+      empresa_id
+    ];
+
+    const result = await pool.query(query, values);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ erro: "Produto não encontrado" });
+    }
+    
+    console.log("✅ PRODUTO ATUALIZADO:", result.rows[0]);
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("❌ Erro ao atualizar produto:", error);
+    res.status(500).json({ erro: error.message });
+  }
+};
+
+// ===== EXCLUIR PRODUTO =====
+export const excluirProduto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const empresa_id = req.headers["x-empresa-id"] || req.query.empresa_id;
+
+    if (!empresa_id) {
+      return res.status(400).json({ erro: "empresa_id é obrigatório" });
     }
 
-    res.json({ mensagem: "Produto excluído com sucesso!" });
-  } catch (erro) {
-    console.error("Erro ao excluir produto:", erro.message);
-    res.status(500).json({ erro: "Erro interno no servidor ao excluir produto." });
+    const query = `DELETE FROM produtos WHERE id = $1 AND empresa_id = $2 RETURNING *`;
+    const result = await pool.query(query, [id, empresa_id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ erro: "Produto não encontrado" });
+    }
+
+    res.json({ mensagem: "Produto excluído com sucesso" });
+  } catch (error) {
+    console.error("❌ Erro ao excluir produto:", error);
+    res.status(500).json({ erro: error.message });
   }
 };
